@@ -1,6 +1,7 @@
 from click import prompt
 
 from PySide6.QtCore import Signal
+from ui.gallery_widget import GalleryWidget
 
 from PySide6.QtWidgets import (
     QWidget,

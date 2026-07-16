@@ -1,0 +1,9 @@
+{
+    "model": "SDXL Turbo",
+    "width": 1024,
+    "height": 1024,
+    "steps": 2,
+    "guidance": 0.0,
+    "seed": -1,
+    "negative_prompt": ""
+}

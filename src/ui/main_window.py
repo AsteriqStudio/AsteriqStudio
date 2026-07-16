@@ -13,7 +13,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("CineForge AI")
+        self.setWindowTitle("AsteriqStudio")
 
         self.resize(1400, 800)
 
@@ -61,6 +61,17 @@ class MainWindow(QWidget):
 
         self.right.display_image(image_path)
 
+        self.left.gallery.refresh()
+
         self.right.progress.hide()
+        
 
         self.right.status.setText("Ready")
+
+    def show_gallery_image(self, path):
+
+        self.right.display_image(path)
+
+        self.right.status.setText("Viewing image")
+
+        
