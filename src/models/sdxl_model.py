@@ -4,10 +4,14 @@ from datetime import datetime
 import torch
 from managers.project_manager import ProjectManager
 
+from config.generation_settings import GenerationSettings
+
 
 class SDXLModel:
 
     def __init__(self):
+
+        self.settings = GenerationSettings()
 
         print("Loading SDXL Turbo...")
 
@@ -32,8 +36,12 @@ class SDXLModel:
 
         image = self.pipe(
             prompt=prompt,
-            num_inference_steps=2,
-            guidance_scale=0.0
+            negative_prompt=self.settings.negative_prompt,
+            width=self.settings.width,
+            height=self.settings.height,
+            num_inference_steps=self.settings.steps,
+            guidance_scale=self.settings.guidance,
+            generator=None if self.settings.seed is None else torch.Generator("cpu").manual_seed(self.settings.seed)
         ).images[0]
 
         print("Image generated.")

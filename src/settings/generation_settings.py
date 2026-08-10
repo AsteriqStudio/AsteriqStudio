@@ -1,19 +1,18 @@
-from dataclasses import dataclass
+from config.resolutions import RESOLUTIONS
 
 
-@dataclass
 class GenerationSettings:
 
-    model: str = "SDXL Turbo"
+    def __init__(self):
 
-    width: int = 512
+        self.model = "SDXL Turbo"
 
-    height: int = 512
+        self.width, self.height = RESOLUTIONS["Square 512"]
 
-    steps: int = 2
+        self.steps = 2
 
-    guidance: float = 0.0
+        self.guidance = 0.0
 
-    seed: int = -1
+        self.seed = -1
 
-    negative_prompt: str = ""
+        self.negative_prompt = ""

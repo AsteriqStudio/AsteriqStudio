@@ -1,11 +1,16 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 from PySide6.QtCore import QThread
 
-from ui.left_panel import LeftPanel
-from ui.right_panel import RightPanel
-
 from controllers.image_controller import ImageController
+from controllers.video_controller import VideoController
+
 from workers.generation_worker import GenerationWorker
+
+from ui.shell.app_shell import AppShell
+
+from config.app_info import APP_NAME
+
+from pathlib import Path
 
 
 class MainWindow(QWidget):
@@ -13,65 +18,151 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("AsteriqStudio")
+        print("MainWindow created")
+
+        self.setWindowTitle(APP_NAME)
 
         self.resize(1400, 800)
 
         self.controller = ImageController()
 
-        self.left = LeftPanel()
-        self.right = RightPanel()
+        self.video_controller = VideoController()
+
+        self.shell = AppShell()
 
         layout = QHBoxLayout()
 
-        layout.addWidget(self.left, 1)
-        layout.addWidget(self.right, 2)
+        layout.addWidget(self.shell)
 
         self.setLayout(layout)
 
-        self.left.generate_requested.connect(self.generate_image)
+        self.shell.workspace.prompt.generate_requested.connect(
+            self.generate_image
+        )
 
-    def generate_image(self, prompt):
+        self.shell.workspace.assets.asset_selected.connect(
+            self.show_asset
+        )
 
-        self.right.status.setText("Generating image...")
-        self.right.progress.show()
+        self.shell.workspace.video.generate_requested.connect(
+            self.generate_video
+        )
+
+    def generate_image(self, request):
+
+        print("=" * 50)
+        print("MAIN WINDOW")
+        print("=" * 50)
+        print("Request Type:", type(request))
+        print(request)
+
+        self.shell.right.status.setText("Generating image...")
+        self.shell.right.progress.show()
 
         self.thread = QThread()
 
         self.worker = GenerationWorker(
             self.controller,
-            prompt
+            request
         )
 
         self.worker.moveToThread(self.thread)
 
-        self.thread.started.connect(self.worker.run)
+        self.thread.started.connect(
+            self.worker.run
+        )
 
-        self.worker.finished.connect(self.image_finished)
+        self.worker.finished.connect(
+            self.image_finished
+        )
 
-        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(
+            self.thread.quit
+        )
 
-        self.worker.finished.connect(self.worker.deleteLater)
+        self.worker.finished.connect(
+            self.worker.deleteLater
+        )
 
-        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.finished.connect(
+            self.thread.deleteLater
+        )
 
         self.thread.start()
 
     def image_finished(self, image_path):
 
-        self.right.display_image(image_path)
+        self.shell.right.display_image(image_path)
 
-        self.left.gallery.refresh()
+        self.shell.workspace.assets.refresh()
 
-        self.right.progress.hide()
-        
+        self.shell.right.progress.hide()
 
-        self.right.status.setText("Ready")
+        self.shell.right.status.setText("Ready")
 
-    def show_gallery_image(self, path):
+    def show_asset(self, path):
 
-        self.right.display_image(path)
+        extension = Path(path).suffix.lower()
 
-        self.right.status.setText("Viewing image")
+        if extension in [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".webp"
+        ]:
 
-        
+            self.shell.right.display_image(path)
+
+            self.shell.workspace.video.set_image(path)
+
+            self.shell.right.status.setText(
+                "Viewing image"
+            )
+
+        elif extension in [
+            ".mp4",
+            ".mov",
+            ".avi",
+            ".mkv"
+        ]:
+
+            self.shell.right.display_video(path)
+
+            self.shell.right.status.setText(
+                "Viewing video"
+            )
+
+        elif extension in [
+            ".mp3",
+            ".wav",
+            ".ogg"
+        ]:
+
+            print("Play audio:", path)
+
+            self.shell.right.status.setText(
+                "Playing audio"
+            )
+
+    def generate_video(self, request):
+
+        print("=" * 50)
+        print("VIDEO REQUEST")
+        print("=" * 50)
+        print(request)
+
+        self.shell.right.status.setText(
+            "Generating video..."
+        )
+
+        self.shell.right.progress.show()
+
+        video_path = self.video_controller.generate(
+            request
+        )
+
+        self.shell.right.progress.hide()
+
+        self.shell.right.status.setText(
+            "Video generation finished."
+        )

@@ -1,4 +1,5 @@
 from services.image_service import ImageService
+from models.generation_request import GenerationRequest
 
 
 class ImageController:
@@ -7,6 +8,9 @@ class ImageController:
 
         self.image_service = ImageService()
 
-    def generate(self, prompt):
+    def generate(
+        self,
+        request: GenerationRequest
+    ):
 
-        return self.image_service.generate(prompt)
+        return self.image_service.generate(request)

@@ -2,7 +2,7 @@ from core.generator import Generator
 from models.generation_request import GenerationRequest
 
 
-class ImageService:
+class VideoService:
 
     def __init__(self):
 
@@ -10,11 +10,6 @@ class ImageService:
 
     def generate(
         self,
-        request: GenerationRequest
+        request
     ):
-
-        print("=" * 50)
-        print("IMAGE SERVICE")
-        print("=" * 50)
-
-        return self.generator.generate_image(request)
+        return self.generator.generate_video(request)

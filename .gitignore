@@ -1,0 +1,30 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Generated project media
+Projects/Default/Images/
+Projects/Default/Videos/
+
+# Generated outputs
+outputs/
+output/
+
+# AI models
+models/
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.bin
+
+# Local configuration / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
