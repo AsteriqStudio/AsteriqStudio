@@ -1,9 +1,9 @@
 FROM runpod/worker-comfyui:5.8.6-base
 
-RUN git clone https://github.com/Lightricks/ComfyUI-LTXVideo.git /workspace/runpod-slim/ComfyUI/custom_nodes/ComfyUI-LTXVideo
+RUN git clone https://github.com/Lightricks/ComfyUI-LTXVideo.git /comfyui/custom_nodes/ComfyUI-LTXVideo
 
-RUN cd /workspace/runpod-slim/ComfyUI/custom_nodes/ComfyUI-LTXVideo && git checkout aceeae9635f6d493f2893ba3c411a1c36031788a
+RUN cd /comfyui/custom_nodes/ComfyUI-LTXVideo && git checkout aceeae9635f6d493f2893ba3c411a1c36031788a
 
-RUN pip install -r /workspace/runpod-slim/ComfyUI/custom_nodes/ComfyUI-LTXVideo/requirements.txt
+RUN pip install -r /comfyui/custom_nodes/ComfyUI-LTXVideo/requirements.txt
 
-COPY runpod/extra_model_paths.yaml /workspace/runpod-slim/ComfyUI/extra_model_paths.yaml
+COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
