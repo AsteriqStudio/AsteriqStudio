@@ -1,0 +1,4 @@
+runpod:
+  base_path: /runpod-volume
+  checkpoints: models/checkpoints/
+  text_encoders: models/text_encoders/
