@@ -14,10 +14,12 @@
   "timeline": {"final_durations_seconds": [60, 300, 600], "internal_checkpoint_seconds": 10, "fps": 24, "constant_frame_rate": true},
   "core_comfy_requirements": {
     "executables": ["ffmpeg"],
-    "nodes": ["ComfyUI-VideoHelperSuite", "ComfyUI-segment-anything-2", "ComfyUI-LTXVideo"],
+    "nodes": ["ComfyUI-VideoHelperSuite", "ComfyUI-segment-anything-2"],
     "models": [
-      "checkpoints/ltxv-2b-0.9.6-distilled-04-25.safetensors",
-      "text_encoders/t5xxl_fp8_e4m3fn.safetensors",
+      "diffusion_models/wan2.1_vace_1.3B_fp16.safetensors",
+      "text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "vae/wan_2.1_vae.safetensors",
+      "clip_vision/clip_vision_h.safetensors",
       "sam2/sam2.1_hiera_tiny-fp16.safetensors"
     ]
   },

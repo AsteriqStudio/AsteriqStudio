@@ -16,7 +16,7 @@
     "fast_economy": {
       "target_eur_per_output_minute": 1,
       "maximum_gpu_seconds_per_output_minute": 1500,
-      "strategy": "track locally first, retarget reusable rig, render reusable set, use LTX only for approved hero shots and transitions",
+      "strategy": "track locally first, retarget reusable rig, render reusable set, use Wan VACE only for approved hero shots and transitions",
       "cache": ["character version", "virtual set", "camera and lighting", "performer tracks", "voice profile", "unchanged shots"],
       "4k": "requires a separately approved finishing budget"
     },
@@ -46,7 +46,7 @@
     {"id": "performance", "component": "MediaPipe Pose", "purpose": "body and gesture guidance without replacing the ComfyUI CUDA runtime"},
     {"id": "character", "component": "Microsoft TRELLIS + rig repair", "purpose": "reference or brief-to-3D character assets for the direct 3D route"},
     {"id": "direct_3d", "component": "Blender", "purpose": "rigged-character animation, virtual sets, camera, lighting, wardrobe and prop rendering without a 2D video intermediary"},
-    {"id": "animate", "component": "LTX-Video 2B 0.9.6 distilled", "purpose": "style-conditioned image/video animation windows on 24 GB workers"},
+    {"id": "animate", "component": "Wan 2.1 VACE 1.3B", "purpose": "Apache-2.0, source-guided stylized animation windows at 480p on 24 GB workers"},
     {"id": "voice", "component": "OpenVoice V2", "purpose": "stable, per-character voice transformation"},
     {"id": "upscale", "component": "Real-ESRGAN x4plus", "purpose": "approved 4K finishing"},
     {"id": "assemble", "component": "FFmpeg", "purpose": "one synchronized minute-length MP4"}

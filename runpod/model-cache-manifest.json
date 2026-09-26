@@ -5,18 +5,32 @@
   "reserved_free_bytes": 8589934592,
   "artifacts": [
     {
-      "id": "ltxv-2b-0.9.6-distilled",
-      "purpose": "Fast, style-conditioned image/video animation windows on the 24 GB RTX 4090 worker.",
-      "source": "https://huggingface.co/Lightricks/LTX-Video/resolve/main/ltxv-2b-0.9.6-distilled-04-25.safetensors",
-      "destination": "checkpoints/ltxv-2b-0.9.6-distilled-04-25.safetensors",
-      "license_note": "Use the upstream LTX-Video Open Weights terms; no paid model API is used."
+      "id": "wan2.1-vace-1.3b",
+      "purpose": "Commercially usable Apache-2.0 source-guided video generation at 480p; long films remain split into 10-second internal windows.",
+      "source": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/diffusion_models/wan2.1_vace_1.3B_fp16.safetensors",
+      "destination": "diffusion_models/wan2.1_vace_1.3B_fp16.safetensors",
+      "license_note": "Wan 2.1 model weights are Apache-2.0. No paid model API is used."
     },
     {
-      "id": "t5xxl-fp8-text-encoder",
-      "purpose": "Prompt encoding selected to fit the 24 GB worker alongside the LTX 2B distilled checkpoint.",
-      "source": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors",
-      "destination": "text_encoders/t5xxl_fp8_e4m3fn.safetensors",
-      "license_note": "Open-weight text encoder cache used locally by ComfyUI; pin checksum after first verified fetch."
+      "id": "wan-umt5-xxl-fp8-text-encoder",
+      "purpose": "Wan 2.1 prompt encoding selected to fit alongside the VACE 1.3B worker model.",
+      "source": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "destination": "text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "license_note": "Open-weight Wan text encoder cache used locally by ComfyUI; pin checksum after first verified fetch."
+    },
+    {
+      "id": "wan2.1-vae",
+      "purpose": "Wan 2.1 video latent decode and encode runtime.",
+      "source": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors",
+      "destination": "vae/wan_2.1_vae.safetensors",
+      "license_note": "Wan 2.1 model weights are Apache-2.0."
+    },
+    {
+      "id": "wan-clip-vision-h",
+      "purpose": "Reference-frame conditioning for stable character and set appearance across animation windows.",
+      "source": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors",
+      "destination": "clip_vision/clip_vision_h.safetensors",
+      "license_note": "ComfyUI Wan 2.1 reference-conditioning dependency; record upstream license metadata in the asset register."
     },
     {
       "id": "realesrgan-x4plus",
@@ -31,34 +45,6 @@
       "source": "https://huggingface.co/Kijai/sam2-safetensors/resolve/main/sam2.1_hiera_tiny-fp16.safetensors",
       "destination": "sam2/sam2.1_hiera_tiny-fp16.safetensors",
       "license_note": "Apache-2.0 node integration; use the upstream SAM2 checkpoint terms."
-    },
-    {
-      "id": "openvoice-v2",
-      "repository": "myshell-ai/OpenVoiceV2",
-      "revision": "main",
-      "destination": "audio/openvoice-v2",
-      "license_note": "MIT. A saved, user-approved character voice reference is required for conversion."
-    },
-    {
-      "id": "faster-whisper-small",
-      "repository": "Systran/faster-whisper-small",
-      "revision": "main",
-      "destination": "audio/faster-whisper-small",
-      "license_note": "MIT; local multilingual transcription, including German."
-    },
-    {
-      "id": "marian-en-de",
-      "repository": "Helsinki-NLP/opus-mt-en-de",
-      "revision": "main",
-      "destination": "audio/marian-en-de",
-      "license_note": "CC-BY-4.0; retain required attribution in the project license record."
-    },
-    {
-      "id": "marian-de-en",
-      "repository": "Helsinki-NLP/opus-mt-de-en",
-      "revision": "main",
-      "destination": "audio/marian-de-en",
-      "license_note": "Apache-2.0."
     }
   ]
 }

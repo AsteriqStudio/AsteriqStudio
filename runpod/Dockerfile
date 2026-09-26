@@ -6,15 +6,9 @@ RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git curl blender espeak-ng libsndfile1 libgl1 python3-venv \
  && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/Lightricks/ComfyUI-LTXVideo.git /comfyui/custom_nodes/ComfyUI-LTXVideo
-
-RUN cd /comfyui/custom_nodes/ComfyUI-LTXVideo && git checkout aceeae9635f6d493f2893ba3c411a1c36031788a
-
-RUN pip install -r /comfyui/custom_nodes/ComfyUI-LTXVideo/requirements.txt
-
-# These nodes provide the video IO, segmentation, and pose-control interfaces
-# used by the Asteriq production plan. Model weights stay on the network volume
-# and are not downloaded during image build.
+# The ComfyUI base image supplies the Wan VACE core operators. These external
+# nodes provide video I/O and segmentation; their model weights stay on the
+# network volume and are never downloaded during image build.
 RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git /comfyui/custom_nodes/ComfyUI-VideoHelperSuite \
  && git clone --depth 1 https://github.com/kijai/ComfyUI-segment-anything-2.git /comfyui/custom_nodes/ComfyUI-segment-anything-2
 
@@ -24,18 +18,12 @@ RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.
 # capture and needs only video I/O here.
 RUN pip install --no-cache-dir opencv-python-headless imageio-ffmpeg
 
-# The voice/transcription stack runs in its own Serverless stage.  Do not
-# install it into the Comfy image: its audio dependencies conflict with the
-# CUDA image's pinned packages and make the video worker non-reproducible.
-RUN git clone https://github.com/myshell-ai/OpenVoice.git /opt/asteriq/openvoice \
- && cd /opt/asteriq/openvoice && git checkout 74a1d147b17a8c3092dd5430504bd83ef6c7eb23 \
- && python3 -m venv --system-site-packages /opt/asteriq/audio-venv
-COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
+# The voice/transcription stack runs in a separate Serverless stage, so its
+# dependency set cannot replace the CUDA packages used by this video worker.
 RUN pip install --no-cache-dir 'huggingface_hub>=0.24'
 
 COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY runpod/production-stack.json /opt/asteriq/production-stack.json
-COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
 COPY runpod/model-cache-manifest.json /opt/asteriq/model-cache-manifest.json
 COPY runpod/audit-network-volume.py /opt/asteriq/audit-network-volume.py
 COPY runpod/source-video-workflow-manifest.json /opt/asteriq/source-video-workflow-manifest.json
