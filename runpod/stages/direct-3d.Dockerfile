@@ -8,5 +8,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 RUN git clone --depth 1 --recurse-submodules https://github.com/microsoft/TRELLIS.git /opt/TRELLIS \
  && pip install --no-cache-dir "runpod>=1.7,<2" "huggingface_hub>=0.24"
 COPY runpod/stages/handler.py /opt/asteriq/handler.py
+COPY runpod/stages/stage-cache-manifest.json /opt/asteriq/stage-cache-manifest.json
+COPY runpod/stages/bootstrap-stage-cache.py /opt/asteriq/bootstrap-stage-cache.py
 ENV ASTERIQ_STAGE=direct_3d ASTERIQ_VOLUME_ROOT=/runpod-volume PYTHONUNBUFFERED=1
 CMD ["python", "-u", "/opt/asteriq/handler.py"]

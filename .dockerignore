@@ -6,5 +6,5 @@
 !runpod/**
 !workflows/
 !workflows/video/
-!workflows/video/wan_vace_source_video_api.json
+!workflows/video/**
 !.dockerignore

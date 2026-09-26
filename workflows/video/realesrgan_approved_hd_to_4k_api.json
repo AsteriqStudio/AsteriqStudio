@@ -1,0 +1,9 @@
+{
+  "1": {"class_type": "LoadVideo", "inputs": {"video": "APPROVED_HD_MASTER.mp4", "upload": "video"}, "_meta": {"title": "Asteriq: approved HD master only"}},
+  "2": {"class_type": "GetVideoComponents", "inputs": {"video": ["1", 0]}, "_meta": {"title": "Asteriq: decoded CFR HD frames"}},
+  "3": {"class_type": "UpscaleModelLoader", "inputs": {"model_name": "RealESRGAN_x4plus.pth"}, "_meta": {"title": "Asteriq: Real-ESRGAN x4plus"}},
+  "4": {"class_type": "ImageUpscaleWithModel", "inputs": {"upscale_model": ["3", 0], "image": ["2", 0]}, "_meta": {"title": "Asteriq: frame-preserving upscale"}},
+  "5": {"class_type": "ImageScale", "inputs": {"image": ["4", 0], "upscale_method": "lanczos", "width": "FINAL_WIDTH", "height": "FINAL_HEIGHT", "crop": "disabled"}, "_meta": {"title": "Asteriq: exact requested 4K delivery dimensions"}},
+  "6": {"class_type": "CreateVideo", "inputs": {"images": ["5", 0], "fps": 24}, "_meta": {"title": "Asteriq: 4K constant-frame-rate picture"}},
+  "7": {"class_type": "SaveVideo", "inputs": {"video": ["6", 0], "filename_prefix": "asteriq/final_4k/APPROVED_HD_EDIT_ID", "format": "auto", "codec": "auto"}, "_meta": {"title": "Asteriq: final audio mux handoff"}}
+}

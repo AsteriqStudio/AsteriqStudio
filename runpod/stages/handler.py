@@ -44,7 +44,10 @@ def _cache_items() -> dict[str, bool]:
     # API fallback.
     expected = {
         "capture": [MODEL_ROOT / "pose", MODEL_ROOT / "sam2"],
-        "audio": [MODEL_ROOT / "voice" / "openvoice_v2", MODEL_ROOT / "speech" / "faster_whisper_small", MODEL_ROOT / "translation"],
+        # Keep these paths aligned with the shared stage-cache manifest.
+        # Previous drafts used incompatible layouts and could report an
+        # installed cache as missing.
+        "audio": [MODEL_ROOT / "audio" / "openvoice-v2", MODEL_ROOT / "audio" / "faster-whisper-small", MODEL_ROOT / "audio" / "marian-en-de", MODEL_ROOT / "audio" / "marian-de-en"],
         "direct_3d": [MODEL_ROOT / "trellis"],
     }.get(STAGE, [])
     return {str(path.relative_to(MODEL_ROOT)): path.exists() for path in expected}
@@ -153,8 +156,19 @@ def handler(job: dict[str, Any]) -> dict[str, Any]:
         report["no_render"] = True
         report["media_handoff_ready"] = report["media_storage"]["configured"]
         return report
+    if operation == "cache_install":
+        # Cache installation is never implicit at boot or preflight. It can
+        # download open weights, so an explicit operator approval is required.
+        if payload.get("operator_cache_install_approval") != "approved":
+            return {"error": "operator cache-install approval is required", "readiness": report}
+        installer = Path("/opt/asteriq/bootstrap-stage-cache.py")
+        if not installer.is_file():
+            return {"error": "stage cache installer is not present", "readiness": report}
+        completed = subprocess.run(["python", str(installer), "--stage", STAGE], check=False, capture_output=True, text=True, timeout=60 * 60)
+        refreshed = readiness()
+        return {"stage": STAGE, "cache_install_exit_code": completed.returncode, "models_ready": refreshed["models_ready"], "readiness": refreshed, "log_tail": (completed.stdout + completed.stderr)[-4000:]}
     if operation != "approved_execute":
-        return {"error": "operation must be preflight or approved_execute"}
+        return {"error": "operation must be preflight, storage_preflight, cache_install, or approved_execute"}
     if payload.get("operator_render_approval") != "approved":
         return {"error": "operator approval is required before compute"}
     if not report["generation_enabled"]:
