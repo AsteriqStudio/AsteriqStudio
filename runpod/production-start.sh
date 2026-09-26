@@ -7,6 +7,7 @@ set -euo pipefail
 MODEL_ROOT="/runpod-volume/models"
 mkdir -p "$MODEL_ROOT"/{checkpoints,text_encoders,sam2,upscale,voice,loras,latent_upscale_models}
 
+python3 /opt/asteriq/audit-network-volume.py
 python3 /opt/asteriq/bootstrap-model-cache.py
 python3 /opt/asteriq/validate-source-video-workflow.py
 

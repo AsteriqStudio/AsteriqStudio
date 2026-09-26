@@ -39,11 +39,12 @@ COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY runpod/production-stack.json /opt/asteriq/production-stack.json
 COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
 COPY runpod/model-cache-manifest.json /opt/asteriq/model-cache-manifest.json
+COPY runpod/audit-network-volume.py /opt/asteriq/audit-network-volume.py
 COPY runpod/source-video-workflow-manifest.json /opt/asteriq/source-video-workflow-manifest.json
 COPY runpod/bootstrap-model-cache.py /opt/asteriq/bootstrap-model-cache.py
 COPY runpod/validate-source-video-workflow.py /opt/asteriq/validate-source-video-workflow.py
 COPY runpod/production-start.sh /opt/asteriq/production-start.sh
-RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/bootstrap-model-cache.py /opt/asteriq/validate-source-video-workflow.py
+RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/audit-network-volume.py /opt/asteriq/bootstrap-model-cache.py /opt/asteriq/validate-source-video-workflow.py
 
 # The first release after this change warms the shared RunPod network volume.
 # The bootstrap uses a cross-worker lock and is idempotent, so later worker
