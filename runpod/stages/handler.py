@@ -53,6 +53,23 @@ def _cache_items() -> dict[str, bool]:
     return {str(path.relative_to(MODEL_ROOT)): path.exists() for path in expected}
 
 
+def _core_cache_report() -> dict[str, Any]:
+    """Expose only cache readiness state, never paths or credential data."""
+    report_path = MODEL_ROOT / "asteriq" / "model-cache-readiness.json"
+    if not report_path.is_file():
+        return {"report_present": False, "ready": False, "artifacts": []}
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"report_present": True, "ready": False, "artifacts": []}
+    artifacts = report.get("artifacts") or []
+    return {
+        "report_present": True,
+        "ready": report.get("ready") is True and all(item.get("status") == "ready" for item in artifacts),
+        "artifacts": [{"id": item.get("id"), "status": item.get("status")} for item in artifacts],
+    }
+
+
 def _media_storage() -> dict[str, Any]:
     """Describe the S3 hand-off without exposing credentials in any report."""
     fields = {
@@ -83,6 +100,7 @@ def readiness() -> dict[str, Any]:
         "volume_mounted": VOLUME_ROOT.is_dir(),
         "ffmpeg": bool(_binary("ffmpeg")),
         "cache": cache,
+        "core_model_cache": _core_cache_report(),
         "models_ready": bool(cache) and all(cache.values()),
         "generation_enabled": bool(cache) and all(cache.values()),
         "paid_model_apis": False,
