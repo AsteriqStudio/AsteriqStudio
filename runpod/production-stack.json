@@ -6,6 +6,13 @@
   "internal_checkpoint_seconds": 10,
   "model_cache_root": "/runpod-volume/models",
   "cost_profiles": {
+    "fast_economy": {
+      "target_eur_per_output_minute": 1,
+      "maximum_gpu_seconds_per_output_minute": 1500,
+      "strategy": "track locally first, retarget reusable rig, render reusable set, use LTX only for approved hero shots and transitions",
+      "cache": ["character version", "virtual set", "camera and lighting", "performer tracks", "voice profile", "unchanged shots"],
+      "4k": "requires a separately approved finishing budget"
+    },
     "economy": {
       "target_eur_per_output_minute": 1,
       "maximum_gpu_seconds_per_output_minute": 3600,
@@ -17,6 +24,14 @@
       "strategy": "use continuity-conditioned generative animation windows",
       "cache": ["character version", "virtual set", "performer tracks", "unchanged shots"]
     }
+  },
+  "price_guard": {
+    "currency": "USD",
+    "hourly_price_ceilings": {"L4": 0.69, "RTX_4090": 1.1},
+    "worst_case_hourly_price": 1.1,
+    "require_worker_quote_before_compute": true,
+    "on_missing_or_over_ceiling_quote": "leave job queued and require operator review",
+    "rule": "estimate and reserve the job at the RTX 4090 ceiling until the worker returns its actual quoted rate; never use the L4 price as an assumption"
   },
   "stages": [
     {"id": "concept_design", "component": "Segmind SSD-1B", "purpose": "open-source concept frames and character/set design sheets"},

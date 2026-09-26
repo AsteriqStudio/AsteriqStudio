@@ -36,5 +36,6 @@ RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/bootstrap-model-cache
 # The bootstrap uses a cross-worker lock and is idempotent, so later worker
 # starts only validate the cache instead of re-downloading the weights.
 ENV ASTERIQ_MODEL_CACHE_BOOTSTRAP=1
+ENV ASTERIQ_MODEL_CACHE_INTEGRITY=sha256_shared_volume_lock
 
 CMD ["/opt/asteriq/production-start.sh"]
