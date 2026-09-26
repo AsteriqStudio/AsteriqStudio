@@ -20,7 +20,11 @@ import runpod
 
 
 STAGE = os.environ.get("ASTERIQ_STAGE", "capture")
-VOLUME_ROOT = Path(os.environ.get("ASTERIQ_VOLUME_ROOT", "/runpod-volume"))
+# Runpod may mount a Serverless Network Volume at /workspace even when a
+# template requested /runpod-volume.  Accept both canonical paths rather than
+# reporting a false cache failure after a successful worker start.
+_requested_root = Path(os.environ.get("ASTERIQ_VOLUME_ROOT", "/runpod-volume"))
+VOLUME_ROOT = _requested_root if _requested_root.is_dir() else Path("/workspace")
 MODEL_ROOT = VOLUME_ROOT / "models"
 
 

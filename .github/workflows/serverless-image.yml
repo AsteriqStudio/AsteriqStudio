@@ -4,7 +4,12 @@ on:
   push:
     branches: [development]
     paths:
-      - 'runpod/**'
+      - 'runpod/Dockerfile'
+      - 'runpod/*.py'
+      - 'runpod/*.json'
+      - 'runpod/*.yaml'
+      - 'runpod/*.yml'
+      - 'runpod/*.sh'
       - '.dockerignore'
       - '.github/workflows/serverless-image.yml'
   workflow_dispatch:
