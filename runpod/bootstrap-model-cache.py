@@ -74,7 +74,7 @@ def download_repository(repository: str, revision: str, destination: Path) -> No
 
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    root = Path(manifest["model_root"])
+    root = Path(os.environ.get("ASTERIQ_MODEL_ROOT", manifest["model_root"]))
     root.mkdir(parents=True, exist_ok=True)
     report_path = root / "asteriq" / "model-cache-readiness.json"
     lock_path = root / "asteriq" / "model-cache-integrity-lock.json"

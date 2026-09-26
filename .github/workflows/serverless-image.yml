@@ -1,0 +1,38 @@
+name: Build Asteriq Serverless image
+
+on:
+  push:
+    branches: [development]
+    paths:
+      - 'runpod/**'
+      - '.dockerignore'
+      - '.github/workflows/serverless-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/asteriqstudio/asteriqstudio-worker
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: runpod/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:development
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}

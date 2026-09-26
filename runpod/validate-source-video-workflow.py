@@ -16,7 +16,7 @@ import sys
 
 
 MANIFEST = Path("/opt/asteriq/source-video-workflow-manifest.json")
-MODEL_ROOT = Path("/runpod-volume/models")
+MODEL_ROOT = Path(os.environ.get("ASTERIQ_MODEL_ROOT", "/runpod-volume/models"))
 COMFY_ROOT = Path("/comfyui")
 
 

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import shutil
 
 
-VOLUME = Path("/runpod-volume")
+VOLUME = Path(os.environ.get("ASTERIQ_VOLUME_ROOT", "/runpod-volume"))
 MODELS = VOLUME / "models"
 REPORT = MODELS / "asteriq" / "network-volume-audit.json"
 
