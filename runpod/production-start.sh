@@ -23,5 +23,6 @@ mkdir -p "$ASTERIQ_MODEL_ROOT"/{checkpoints,diffusion_models,text_encoders,clip_
 python3 /opt/asteriq/audit-network-volume.py
 python3 /opt/asteriq/bootstrap-model-cache.py
 python3 /opt/asteriq/validate-source-video-workflow.py
+python3 /opt/asteriq/validate-wan-source-workflow.py
 
 exec /start.sh

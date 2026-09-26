@@ -12,6 +12,12 @@
     "negative_terms": ["photorealistic", "real skin", "live action", "uncanny realism"]
   },
   "timeline": {"final_durations_seconds": [60, 300, 600], "internal_checkpoint_seconds": 10, "fps": 24, "constant_frame_rate": true},
+  "source_video_workflow": {
+    "artifact": "/opt/asteriq/workflows/wan_vace_source_video_api.json",
+    "engine": "Wan 2.1 VACE 1.3B",
+    "checkpoint_frames": 241,
+    "checkpoint_policy": "Render 240 unique frames per 10-second section and retain one overlap frame for deterministic stitching."
+  },
   "core_comfy_requirements": {
     "executables": ["ffmpeg"],
     "nodes": ["ComfyUI-VideoHelperSuite", "ComfyUI-segment-anything-2"],
