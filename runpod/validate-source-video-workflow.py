@@ -33,7 +33,10 @@ def main() -> int:
     }
     available_executables = {command: shutil.which(command) is not None for command in requirements["executables"]}
     blender_ready = shutil.which("blender") is not None
-    audio_runtime_ready = Path("/opt/asteriq/audio-venv/bin/python").is_file() and Path("/opt/asteriq/openvoice").is_dir()
+    # Audio deliberately lives on a separate Serverless worker.  The video
+    # worker records that dependency as unavailable rather than falsely
+    # treating an empty virtual environment as an installed audio runtime.
+    audio_runtime_ready = False
     audio_models = {
         "openvoice": (MODEL_ROOT / "audio/openvoice-v2").is_dir(),
         "asr": (MODEL_ROOT / "audio/faster-whisper-small").is_dir(),

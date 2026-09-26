@@ -24,15 +24,14 @@ RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.
 # capture and needs only video I/O here.
 RUN pip install --no-cache-dir opencv-python-headless imageio-ffmpeg
 
-# Keep voice/transcription packages separate from the ComfyUI interpreter.
-# No model API SDK is installed; all weights are cached from public repos on
-# the attached RunPod volume at worker boot.
+# The voice/transcription stack runs in its own Serverless stage.  Do not
+# install it into the Comfy image: its audio dependencies conflict with the
+# CUDA image's pinned packages and make the video worker non-reproducible.
 RUN git clone https://github.com/myshell-ai/OpenVoice.git /opt/asteriq/openvoice \
  && cd /opt/asteriq/openvoice && git checkout 74a1d147b17a8c3092dd5430504bd83ef6c7eb23 \
  && python3 -m venv --system-site-packages /opt/asteriq/audio-venv
 COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
-RUN /opt/asteriq/audio-venv/bin/pip install --no-cache-dir -r /opt/asteriq/audio-requirements.txt \
- && pip install --no-cache-dir 'huggingface_hub>=0.24'
+RUN pip install --no-cache-dir 'huggingface_hub>=0.24'
 
 COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY runpod/production-stack.json /opt/asteriq/production-stack.json
