@@ -19,8 +19,10 @@ RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.
  && git clone --depth 1 https://github.com/kijai/ComfyUI-segment-anything-2.git /comfyui/custom_nodes/ComfyUI-segment-anything-2 \
  && git clone --depth 1 https://github.com/Fannovel16/comfyui_controlnet_aux.git /comfyui/custom_nodes/comfyui_controlnet_aux
 
+# VideoHelperSuite and controlnet_aux publish dependency files. The SAM2 node
+# uses the base ComfyUI environment and does not include one, so installing a
+# hard-coded missing path makes the whole Serverless image fail to build.
 RUN pip install -r /comfyui/custom_nodes/ComfyUI-VideoHelperSuite/requirements.txt \
- && pip install -r /comfyui/custom_nodes/ComfyUI-segment-anything-2/requirements.txt \
  && pip install -r /comfyui/custom_nodes/comfyui_controlnet_aux/requirements.txt
 
 COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
