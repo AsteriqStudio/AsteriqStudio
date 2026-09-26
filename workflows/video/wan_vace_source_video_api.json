@@ -24,7 +24,7 @@
   "4": {
     "class_type": "LoadVideo",
     "inputs": {"video": "SOURCE_CHECKPOINT.mp4", "upload": "video"},
-    "_meta": {"title": "Asteriq: 10-second source checkpoint"}
+    "_meta": {"title": "Asteriq: source control window, including predecessor handoff when present"}
   },
   "5": {
     "class_type": "LoadImage",
@@ -67,11 +67,11 @@
       "reference_image": ["5", 0],
       "width": 480,
       "height": 480,
-      "length": 241,
+      "length": 264,
       "batch_size": 1,
       "reference_strength": 1
     },
-    "_meta": {"title": "Asteriq: 10 seconds at 24 fps plus overlap frame"}
+    "_meta": {"title": "Asteriq: 10-second 240-frame output plus 24-frame temporal handoff"}
   },
   "11": {
     "class_type": "ModelSamplingSD3",

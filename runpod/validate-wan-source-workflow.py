@@ -33,8 +33,8 @@ def main() -> int:
     if sampler.get("steps") != 4 or sampler.get("control_after_generate") != "fixed":
         errors.append("checkpoint sampler is not deterministic economy configuration")
     vace = workflow.get("10", {}).get("inputs", {})
-    if vace.get("length") != 241:
-        errors.append("checkpoint must contain 241 frames: 10 seconds plus one overlap frame at 24 fps")
+    if vace.get("length") != 264:
+        errors.append("checkpoint must contain 264 frames: 240 output frames plus a 24-frame temporal handoff at 24 fps")
     report = {"ready": not errors, "errors": errors, "node_types": sorted(set(nodes.values())), "policy": "static validation only; no inference performed"}
     print(json.dumps(report, indent=2))
     return 0 if report["ready"] else 78

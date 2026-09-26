@@ -15,8 +15,10 @@
   "source_video_workflow": {
     "artifact": "/opt/asteriq/workflows/wan_vace_source_video_api.json",
     "engine": "Wan 2.1 VACE 1.3B",
-    "checkpoint_frames": 241,
-    "checkpoint_policy": "Render 240 unique frames per 10-second section and retain one overlap frame for deterministic stitching."
+    "checkpoint_frames": 264,
+    "checkpoint_policy": "Render 240 unique output frames per 10-second section plus a 24-frame handoff window. The next section is conditioned by the preceding approved tail; it is never an independently generated clip.",
+    "final_timeline_policy": "Deliver one continuous CFR master timeline. A 60-second film contains exactly 1,440 output frames assembled from six chronological 240-frame sections; handoff frames are used only for conditioning and boundary quality checks, never duplicated in the final edit.",
+    "boundary_quality_gate": ["same cast, character-asset and wardrobe versions", "same virtual-set, camera and lighting continuity snapshot", "pose and mask continuity", "constant 24 fps cadence", "color and exposure delta within project threshold", "motion-vector discontinuity check", "rerender only the failed section or boundary"]
   },
   "core_comfy_requirements": {
     "executables": ["ffmpeg"],
