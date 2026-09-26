@@ -10,7 +10,7 @@ import sys
 
 
 def fingerprint(profile: dict) -> str:
-    public_fields = {key: profile.get(key) for key in ("presentation", "treatment", "pitch_shift", "tempo", "tone_color_seed")}
+    public_fields = {key: profile.get(key) for key in ("character_version_id", "locked_profile_id", "presentation", "style", "treatment", "pitch_shift", "formant_shift", "tone_color_seed", "voice_direction")}
     return hashlib.sha256(json.dumps(public_fields, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -23,7 +23,7 @@ def build(job: dict) -> dict:
     prints: set[str] = set()
     for profile in profiles:
         pid = profile.get("character_version_id", "unnamed")
-        if not profile.get("consent"): errors.append(f"{pid}: consent is required")
+        if profile.get("reference_voice_uri") and profile.get("reference_voice_consent") is not True: errors.append(f"{pid}: a real reference voice requires consent")
         if not profile.get("locked_profile_id"): errors.append(f"{pid}: locked_profile_id is required")
         if pid in ids: errors.append(f"{pid}: character appears more than once")
         ids.add(pid)
@@ -34,12 +34,17 @@ def build(job: dict) -> dict:
     if subtitles.get("languages") != ["en", "de"]: errors.append("English and German subtitles are required")
     if subtitles.get("style") not in {"yellow_no_box", "black_outline_no_box"}: errors.append("subtitle style must be legible and have no background box")
     if not job.get("series_continuity_snapshot_id"): errors.append("series continuity snapshot is required")
+    dialogue = str(job.get("dialogue") or "").strip()
+    lip_sync = job.get("lip_sync") or {}
+    if dialogue and lip_sync.get("required") is not True: errors.append("dialogue requires lip-sync")
+    if dialogue and lip_sync.get("quality_gate") != "phoneme_timing_matches_final_waveform": errors.append("lip-sync must validate the final waveform")
     return {
         "ready": not errors,
         "no_render": True,
         "errors": errors,
         "profile_fingerprints": sorted(prints),
-        "output": ["converted dialogue WAV", "timed transcript", "en.vtt", "de.vtt", "en.ass", "de.ass"],
+        "output": ["character dialogue WAV", "lip-synced video", "timed transcript", "en.vtt", "de.vtt", "en.ass", "de.ass", "captioned master MP4"],
+        "ordered_pipeline": ["synthesize_or_convert", "freeze waveform", "LatentSync 1.6", "ASR", "translation", "subtitle export", "overlay and mux"],
         "policy": "freeze every approved profile into the series continuity snapshot; use the same profile only for the same character",
     }
 

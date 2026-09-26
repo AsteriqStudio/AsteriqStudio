@@ -47,7 +47,7 @@ def _cache_items() -> dict[str, bool]:
         # Keep these paths aligned with the shared stage-cache manifest.
         # Previous drafts used incompatible layouts and could report an
         # installed cache as missing.
-        "audio": [MODEL_ROOT / "audio" / "openvoice-v2", MODEL_ROOT / "audio" / "faster-whisper-small", MODEL_ROOT / "audio" / "marian-en-de", MODEL_ROOT / "audio" / "marian-de-en"],
+        "audio": [MODEL_ROOT / "audio" / "openvoice-v2", MODEL_ROOT / "audio" / "faster-whisper-small", MODEL_ROOT / "audio" / "marian-en-de", MODEL_ROOT / "audio" / "marian-de-en", MODEL_ROOT / "audio" / "latentsync-1.6"],
         "direct_3d": [MODEL_ROOT / "trellis"],
     }.get(STAGE, [])
     return {str(path.relative_to(MODEL_ROOT)): path.exists() for path in expected}
@@ -112,15 +112,32 @@ def readiness() -> dict[str, Any]:
 
 
 def _audio_preflight(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate a locked synthetic/consented voice and final-waveform lip-sync plan."""
     profiles = payload.get("profiles") or []
     seen: set[str] = set()
     errors: list[str] = []
+    if not profiles:
+        errors.append("at least one saved character voice profile is required")
     for profile in profiles:
-        character = str(profile.get("character_version_id", ""))
-        if not character or not profile.get("consent") or not profile.get("locked_profile_id"):
-            errors.append("each voice requires a consent-backed locked character profile")
+        character = str(profile.get("character_version_id") or profile.get("character_id") or "")
+        locked_id = str(profile.get("locked_profile_id") or "")
+        if not character or not locked_id or profile.get("tone_color_seed") is None:
+            errors.append("each voice requires a saved locked character profile")
             continue
-        print_id = hashlib.sha256(json.dumps({k: profile.get(k) for k in ("presentation", "treatment", "pitch_shift", "tempo", "tone_color_seed")}, sort_keys=True).encode()).hexdigest()[:16]
+        # A fictional synthetic profile can be directed without copying a human.
+        # Consent is mandatory only when a real reference clip is supplied.
+        if profile.get("reference_voice_uri") and profile.get("reference_voice_consent") is not True:
+            errors.append(f"{character}: a real reference voice needs saved consent")
+        print_id = hashlib.sha256(json.dumps({
+            "character": character,
+            "profile": locked_id,
+            "presentation": profile.get("presentation"),
+            "style": profile.get("style", profile.get("treatment")),
+            "pitch": profile.get("pitch_shift"),
+            "formant": profile.get("formant_shift"),
+            "tone": profile.get("tone_color_seed"),
+            "direction": profile.get("voice_direction", ""),
+        }, sort_keys=True).encode()).hexdigest()[:16]
         if print_id in seen:
             errors.append("different characters cannot share identical voice settings")
         seen.add(print_id)
@@ -129,8 +146,23 @@ def _audio_preflight(payload: dict[str, Any]) -> dict[str, Any]:
         errors.append("English and German subtitle tracks are required")
     if subtitles.get("style") not in {"yellow_no_box", "black_outline_no_box"}:
         errors.append("subtitle style must be yellow-no-box or black-outline-no-box")
-    return {"contract_ready": not errors, "errors": errors, "profile_fingerprints": sorted(seen)}
-
+    dialogue = str(payload.get("dialogue") or "").strip()
+    lip_sync = payload.get("lip_sync") or {}
+    if dialogue:
+        if lip_sync.get("required") is not True:
+            errors.append("dialogue requires lip-sync")
+        if lip_sync.get("quality_gate") != "phoneme_timing_matches_final_waveform":
+            errors.append("lip-sync must be checked against the final waveform")
+    overlays = payload.get("on_screen_text") or ""
+    return {
+        "contract_ready": not errors,
+        "errors": errors,
+        "profile_fingerprints": sorted(seen),
+        "dialogue_present": bool(dialogue),
+        "visible_text_present": bool(overlays),
+        "ordered_pipeline": ["synthesize_or_convert", "freeze_final_waveform", "LatentSync_1_6", "timed_transcription", "en_de_translation", "subtitle_export", "overlay_and_mux"],
+        "outputs": ["character_dialogue.wav", "lip_synced_video.mp4", "en.vtt", "de.vtt", "en.ass", "de.ass", "captioned_master.mp4"],
+    }
 
 def _direct_3d_preflight(payload: dict[str, Any]) -> dict[str, Any]:
     character = payload.get("character") or {}

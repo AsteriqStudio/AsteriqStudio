@@ -3,13 +3,44 @@
   "policy": "All downloaded weights go to /runpod-volume/models. Source video, working sections, exports and subtitles never go here.",
   "stages": {
     "audio": [
-      {"id": "openvoice-v2", "repository": "myshell-ai/OpenVoiceV2", "destination": "audio/openvoice-v2", "revision": "main"},
-      {"id": "faster-whisper-small", "repository": "Systran/faster-whisper-small", "destination": "audio/faster-whisper-small", "revision": "main"},
-      {"id": "marian-en-de", "repository": "Helsinki-NLP/opus-mt-en-de", "destination": "audio/marian-en-de", "revision": "main"},
-      {"id": "marian-de-en", "repository": "Helsinki-NLP/opus-mt-de-en", "destination": "audio/marian-de-en", "revision": "main"}
+      {
+        "id": "openvoice-v2",
+        "repository": "myshell-ai/OpenVoiceV2",
+        "destination": "audio/openvoice-v2",
+        "revision": "main"
+      },
+      {
+        "id": "faster-whisper-small",
+        "repository": "Systran/faster-whisper-small",
+        "destination": "audio/faster-whisper-small",
+        "revision": "main"
+      },
+      {
+        "id": "marian-en-de",
+        "repository": "Helsinki-NLP/opus-mt-en-de",
+        "destination": "audio/marian-en-de",
+        "revision": "main"
+      },
+      {
+        "id": "marian-de-en",
+        "repository": "Helsinki-NLP/opus-mt-de-en",
+        "destination": "audio/marian-de-en",
+        "revision": "main"
+      },
+      {
+        "id": "latentsync-1.6",
+        "repository": "ByteDance/LatentSync-1.6",
+        "destination": "audio/latentsync-1.6",
+        "revision": "main"
+      }
     ],
     "direct_3d": [
-      {"id": "trellis", "repository": "microsoft/TRELLIS-image-large", "destination": "trellis", "revision": "main"}
+      {
+        "id": "trellis",
+        "repository": "microsoft/TRELLIS-image-large",
+        "destination": "trellis",
+        "revision": "main"
+      }
     ],
     "capture": []
   }

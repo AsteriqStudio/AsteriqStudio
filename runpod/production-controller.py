@@ -77,7 +77,8 @@ def validate(job: dict[str, Any]) -> list[str]:
         voice = performer.get("voice_profile_id")
         fail(errors, bool(character), f"{label}: missing character_version_id")
         fail(errors, bool(voice), f"{label}: missing voice_profile_id")
-        fail(errors, performer.get("voice_consent") is True, f"{label}: voice profile lacks consent confirmation")
+        if performer.get("reference_voice_uri"):
+            fail(errors, performer.get("reference_voice_consent") is True, f"{label}: real reference voice lacks consent confirmation")
         fail(errors, performer.get("track_seed") is not None, f"{label}: missing deterministic track_seed")
         if character:
             fail(errors, character not in characters, f"{label}: character version is assigned twice")
@@ -88,6 +89,14 @@ def validate(job: dict[str, Any]) -> list[str]:
     continuity = job.get("continuity", {})
     for field in ("cast_snapshot_id", "wardrobe_snapshot_id", "virtual_set_version_id", "camera_plan_id", "lighting_plan_id", "style_seed_map_id"):
         fail(errors, bool(continuity.get(field)), f"continuity.{field} is required")
+    audio = job.get("audio", {})
+    dialogue = str(audio.get("dialogue") or "").strip()
+    if dialogue:
+        fail(errors, (audio.get("lip_sync") or {}).get("required") is True, "dialogue requires lip-sync")
+        fail(errors, (audio.get("lip_sync") or {}).get("quality_gate") == "phoneme_timing_matches_final_waveform", "lip-sync must validate the final waveform")
+    subtitles = audio.get("subtitles") or {}
+    fail(errors, subtitles.get("languages") == ["en", "de"], "audio subtitles must include English and German")
+    fail(errors, subtitles.get("style") in {"yellow_no_box", "black_outline_no_box"}, "subtitle style must be legible with no background box")
     output = job.get("output", {})
     fail(errors, output.get("container") == "mp4", "output.container must be mp4")
     fail(errors, output.get("subtitle_languages") == ["en", "de"], "English and German subtitle tracks are required")
@@ -127,7 +136,7 @@ def build_plan(job: dict[str, Any]) -> dict[str, Any]:
         {"id": "ingest", "kind": "ffmpeg_conform", "gpu": False},
         {"id": "track", "kind": "sam2_and_pose", "gpu": True},
         {"id": "render", "kind": "wan_vace_source_video", "gpu": True, "sections": sections},
-        {"id": "audio", "kind": "openvoice_asr_translate_subtitles", "gpu": True},
+        {"id": "audio", "kind": "openvoice_asr_translate_subtitles", "gpu": True, "dialogue": str((job.get("audio") or {}).get("dialogue") or "").strip(), "on_screen_text": (job.get("audio") or {}).get("on_screen_text") or "", "lip_sync": (job.get("audio") or {}).get("lip_sync") or {}},
         {"id": "assemble", "kind": "ffmpeg_cfr_mp4", "gpu": False},
     ]
     approval = job.get("operator_render_approval") == "approved"
