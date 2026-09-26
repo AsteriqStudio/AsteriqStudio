@@ -3,7 +3,7 @@ FROM runpod/worker-comfyui:5.8.6-base
 USER root
 
 RUN apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git curl \
  && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/Lightricks/ComfyUI-LTXVideo.git /comfyui/custom_nodes/ComfyUI-LTXVideo
@@ -27,7 +27,14 @@ RUN pip install -r /comfyui/custom_nodes/ComfyUI-VideoHelperSuite/requirements.t
 
 COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY runpod/production-stack.json /opt/asteriq/production-stack.json
+COPY runpod/model-cache-manifest.json /opt/asteriq/model-cache-manifest.json
+COPY runpod/bootstrap-model-cache.py /opt/asteriq/bootstrap-model-cache.py
 COPY runpod/production-start.sh /opt/asteriq/production-start.sh
-RUN chmod +x /opt/asteriq/production-start.sh
+RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/bootstrap-model-cache.py
+
+# The first release after this change warms the shared RunPod network volume.
+# The bootstrap uses a cross-worker lock and is idempotent, so later worker
+# starts only validate the cache instead of re-downloading the weights.
+ENV ASTERIQ_MODEL_CACHE_BOOTSTRAP=1
 
 CMD ["/opt/asteriq/production-start.sh"]

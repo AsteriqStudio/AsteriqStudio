@@ -20,12 +20,12 @@
   },
   "stages": [
     {"id": "concept_design", "component": "Segmind SSD-1B", "purpose": "open-source concept frames and character/set design sheets"},
-    {"id": "track", "component": "SAM 2", "purpose": "per-person masks and tracking"},
-    {"id": "performance", "component": "DWPose / ControlNet", "purpose": "body and gesture guidance"},
+    {"id": "track", "component": "SAM 2.1 Hiera Tiny", "purpose": "per-person masks and tracking"},
+    {"id": "performance", "component": "DWPose / ControlNet Aux", "purpose": "body and gesture guidance"},
     {"id": "character", "component": "TRELLIS.2 + rig repair", "purpose": "reference-to-3D character assets"},
-    {"id": "animate", "component": "LTX-Video", "purpose": "style-conditioned animation windows"},
+    {"id": "animate", "component": "LTX-Video 2B 0.9.6 distilled", "purpose": "style-conditioned image/video animation windows on 24 GB workers"},
     {"id": "voice", "component": "OpenVoice V2", "purpose": "stable, per-character voice transformation"},
-    {"id": "upscale", "component": "Real-ESRGAN", "purpose": "approved 4K finishing"},
+    {"id": "upscale", "component": "Real-ESRGAN x4plus", "purpose": "approved 4K finishing"},
     {"id": "assemble", "component": "FFmpeg", "purpose": "one synchronized minute-length MP4"}
   ],
   "safety": {

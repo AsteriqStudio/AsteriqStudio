@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "model_root": "/runpod-volume/models",
+  "minimum_free_bytes": 32212254720,
+  "artifacts": [
+    {
+      "id": "ltxv-2b-0.9.6-distilled",
+      "purpose": "Fast, style-conditioned image/video animation windows on the 24 GB RTX 4090 worker.",
+      "source": "https://huggingface.co/Lightricks/LTX-Video/resolve/main/ltxv-2b-0.9.6-distilled-04-25.safetensors",
+      "destination": "checkpoints/ltxv-2b-0.9.6-distilled-04-25.safetensors",
+      "license_note": "Use the upstream LTX-Video Open Weights terms; no paid model API is used."
+    },
+    {
+      "id": "t5xxl-fp8-text-encoder",
+      "purpose": "Prompt encoding selected to fit the 24 GB worker alongside the LTX 2B distilled checkpoint.",
+      "source": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors",
+      "destination": "text_encoders/t5xxl_fp8_e4m3fn.safetensors",
+      "license_note": "Open-weight text encoder cache used locally by ComfyUI; pin checksum after first verified fetch."
+    },
+    {
+      "id": "realesrgan-x4plus",
+      "purpose": "Approved-shot 4K finish after the HD edit passes review.",
+      "source": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "destination": "upscale/RealESRGAN_x4plus.pth",
+      "license_note": "BSD-3-Clause."
+    },
+    {
+      "id": "sam2.1-hiera-tiny-fp16",
+      "purpose": "Per-person source-video masks and tracking before motion retargeting.",
+      "source": "https://huggingface.co/Kijai/sam2-safetensors/resolve/main/sam2.1_hiera_tiny-fp16.safetensors",
+      "destination": "sam2/sam2.1_hiera_tiny-fp16.safetensors",
+      "license_note": "Apache-2.0 node integration; use the upstream SAM2 checkpoint terms."
+    }
+  ]
+}
