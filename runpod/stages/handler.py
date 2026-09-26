@@ -20,11 +20,17 @@ import runpod
 
 
 STAGE = os.environ.get("ASTERIQ_STAGE", "capture")
-# Runpod may mount a Serverless Network Volume at /workspace even when a
-# template requested /runpod-volume.  Accept both canonical paths rather than
-# reporting a false cache failure after a successful worker start.
+# Runpod's Serverless mount is /runpod-volume.  Prefer that canonical mount
+# even if an old endpoint setting still provides /workspace: /workspace is
+# always present in many images and would otherwise hide the real cache.
+_canonical_root = Path("/runpod-volume")
 _requested_root = Path(os.environ.get("ASTERIQ_VOLUME_ROOT", "/runpod-volume"))
-VOLUME_ROOT = _requested_root if _requested_root.is_dir() else Path("/workspace")
+if _canonical_root.is_dir():
+    VOLUME_ROOT = _canonical_root
+elif _requested_root.is_dir():
+    VOLUME_ROOT = _requested_root
+else:
+    VOLUME_ROOT = Path("/workspace")
 MODEL_ROOT = VOLUME_ROOT / "models"
 
 
@@ -44,8 +50,29 @@ def _cache_items() -> dict[str, bool]:
     return {str(path.relative_to(MODEL_ROOT)): path.exists() for path in expected}
 
 
+def _media_storage() -> dict[str, Any]:
+    """Describe the S3 hand-off without exposing credentials in any report."""
+    fields = {
+        "bucket": os.environ.get("ASTERIQ_S3_BUCKET"),
+        "region": os.environ.get("ASTERIQ_S3_REGION"),
+        "endpoint": os.environ.get("ASTERIQ_S3_ENDPOINT"),
+        "access_key": os.environ.get("AWS_ACCESS_KEY_ID"),
+        "secret": os.environ.get("AWS_SECRET_ACCESS_KEY"),
+    }
+    missing = [name for name, value in fields.items() if not value]
+    return {
+        "provider": os.environ.get("ASTERIQ_MEDIA_PROVIDER", "unconfigured"),
+        "configured": not missing,
+        "missing": missing,
+        "bucket": fields["bucket"],
+        "region": fields["region"],
+        "endpoint": fields["endpoint"],
+    }
+
+
 def readiness() -> dict[str, Any]:
     cache = _cache_items()
+    media_storage = _media_storage()
     details: dict[str, Any] = {
         "stage": STAGE,
         "serverless_only": True,
@@ -56,6 +83,7 @@ def readiness() -> dict[str, Any]:
         "models_ready": bool(cache) and all(cache.values()),
         "generation_enabled": bool(cache) and all(cache.values()),
         "paid_model_apis": False,
+        "media_storage": media_storage,
     }
     if STAGE == "capture":
         try:
@@ -117,12 +145,13 @@ def handler(job: dict[str, Any]) -> dict[str, Any]:
     payload = job.get("input") or {}
     operation = payload.get("operation", "preflight")
     report = readiness()
-    if operation == "preflight":
+    if operation in {"preflight", "storage_preflight"}:
         if STAGE == "audio":
             report["contract"] = _audio_preflight(payload)
         elif STAGE == "direct_3d":
             report["contract"] = _direct_3d_preflight(payload)
         report["no_render"] = True
+        report["media_handoff_ready"] = report["media_storage"]["configured"]
         return report
     if operation != "approved_execute":
         return {"error": "operation must be preflight or approved_execute"}
@@ -130,6 +159,8 @@ def handler(job: dict[str, Any]) -> dict[str, Any]:
         return {"error": "operator approval is required before compute"}
     if not report["generation_enabled"]:
         return {"error": "stage cache is not ready", "readiness": report}
+    if not report["media_storage"]["configured"]:
+        return {"error": "stage media storage is not configured", "readiness": report}
     # The long-running media functions are enabled only after their model
     # caches have been verified.  This guard prevents a malformed client from
     # consuming GPU time merely by calling a stage endpoint.
