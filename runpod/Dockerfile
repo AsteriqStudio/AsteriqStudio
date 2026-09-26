@@ -15,7 +15,8 @@ RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.
 # Do not install the complete ControlNet Auxiliary preprocessor bundle: it
 # attempts to replace ComfyUI's CUDA torch stack and makes reproducible image
 # builds fail.  Asteriq uses the separate, pinned MediaPipe runtime for pose
-# capture and needs only video I/O here.
+# capture and needs only video I/O here.  MediaPipe runs in the separate
+# capture-stage image so it cannot replace ComfyUI's CUDA dependencies.
 RUN pip install --no-cache-dir opencv-python-headless imageio-ffmpeg
 
 # The voice/transcription stack runs in a separate Serverless stage, so its

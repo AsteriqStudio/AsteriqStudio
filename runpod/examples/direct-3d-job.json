@@ -1,0 +1,5 @@
+{
+  "character": {"id": "character-ian-v1", "design_brief": "Stylized 3D lead", "height_cm": 165, "body_proportions": "athletic", "asset_version_id": "ian-3d-v1", "turntable_approved": true, "rig_approved": true, "clothing_approved": true},
+  "scene": {"virtual_set_version_id": "kitchen-v2", "camera_plan_id": "conversation-v1", "lighting_plan_id": "warm-evening-v1", "shot_list_id": "episode-1-shots-v1"},
+  "output": {"resolution": "hd"}
+}

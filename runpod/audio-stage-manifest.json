@@ -1,0 +1,21 @@
+{
+  "stage": "serverless_audio",
+  "deployment_mode": "runpod_serverless_only",
+  "runtime": "separate from the video Comfy worker",
+  "models": [
+    {"id": "openvoice-v2", "repository": "myshell-ai/OpenVoiceV2", "license": "MIT", "purpose": "per-character voice transformation"},
+    {"id": "faster-whisper-small", "repository": "Systran/faster-whisper-small", "license": "MIT", "purpose": "local timed transcription"},
+    {"id": "opus-mt-en-de", "repository": "Helsinki-NLP/opus-mt-en-de", "license": "CC-BY-4.0", "purpose": "English to German subtitle translation with attribution record"},
+    {"id": "opus-mt-de-en", "repository": "Helsinki-NLP/opus-mt-de-en", "license": "CC-BY-4.0", "purpose": "German to English subtitle translation with attribution record"}
+  ],
+  "voice_policy": {
+    "consent_required": true,
+    "same_character_requires_locked_profile": true,
+    "different_characters_require_distinct_profile_fingerprints": true,
+    "presentations": ["male", "female", "neutral"],
+    "treatments": ["natural", "cinematic", "warm", "bright", "deep", "animated"],
+    "no_paid_apis": true
+  },
+  "subtitle_policy": {"languages": ["en", "de"], "formats": ["vtt", "ass", "srt"], "style": "yellow text or black outline, no background box"},
+  "render_policy": "The audio stage accepts only an approved production-controller job and never sends media to third-party APIs."
+}

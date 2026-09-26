@@ -47,7 +47,7 @@ def main() -> int:
     capabilities = {
         "source_ingest": available_executables.get("ffmpeg", False) and available_nodes.get("ComfyUI-VideoHelperSuite", False),
         "performer_tracking": available_nodes.get("ComfyUI-segment-anything-2", False) and available_models.get("sam2/sam2.1_hiera_tiny-fp16.safetensors", False),
-        "motion_capture": available_nodes.get("ComfyUI-segment-anything-2", False) and audio_runtime_ready,
+        "motion_capture": False,
         "rig_retarget": blender_ready,
         "virtual_set_render": blender_ready,
         "voice_conversion": audio_runtime_ready and audio_models["openvoice"],

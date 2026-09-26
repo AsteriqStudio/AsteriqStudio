@@ -1,0 +1,8 @@
+{
+  "profiles": [
+    {"character_version_id": "character-ian-v1", "locked_profile_id": "voice-ian-cinematic-v1", "consent": true, "presentation": "male", "treatment": "cinematic", "pitch_shift": -1.0, "tempo": 0.98, "tone_color_seed": 431},
+    {"character_version_id": "character-lumi-v2", "locked_profile_id": "voice-lumi-warm-v1", "consent": true, "presentation": "female", "treatment": "warm", "pitch_shift": 2.0, "tempo": 1.03, "tone_color_seed": 782}
+  ],
+  "subtitles": {"languages": ["en", "de"], "style": "yellow_no_box"},
+  "series_continuity_snapshot_id": "series-asteriq-s1-v3"
+}

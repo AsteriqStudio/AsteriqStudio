@@ -1,0 +1,13 @@
+{
+  "stage": "serverless_direct_3d",
+  "deployment_mode": "runpod_serverless_only",
+  "model": {"id": "TRELLIS", "source": "microsoft/TRELLIS", "license": "MIT", "minimum_gpu_memory_gb": 16},
+  "renderer": "Blender headless",
+  "asset_contract": {
+    "character_inputs": ["design brief", "optional reference images", "height_cm", "body proportions", "hair", "wardrobe"],
+    "saved_asset": ["360-degree mesh", "materials", "texture set", "validated skeleton", "blend package", "version id"],
+    "quality_gates": ["turntable review", "rig deformation review", "clothing collision review", "prop attachment review"]
+  },
+  "scene_contract": {"inputs": ["script", "shot list", "set brief", "props", "camera plan", "lighting plan"], "outputs": ["animated Blender scene", "HD master render", "4K finish after HD approval"]},
+  "render_policy": "Do not create a direct-3D Serverless render until a rigged character and virtual-set package pass the listed quality gates."
+}
