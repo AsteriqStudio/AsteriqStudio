@@ -43,7 +43,10 @@ def _cache_items() -> dict[str, bool]:
     # model is a fail-closed result, never a silent remote download or a paid
     # API fallback.
     expected = {
-        "capture": [MODEL_ROOT / "pose", MODEL_ROOT / "sam2"],
+        # Capture uses MediaPipe from the image for pose and the SAM2 weight
+        # already installed by the shared core cache.  There is intentionally
+        # no duplicate /models/pose download.
+        "capture": [MODEL_ROOT / "sam2" / "sam2.1_hiera_tiny-fp16.safetensors"],
         # Keep these paths aligned with the shared stage-cache manifest.
         # Previous drafts used incompatible layouts and could report an
         # installed cache as missing.
@@ -113,6 +116,9 @@ def readiness() -> dict[str, Any]:
             details["runtime"] = {"mediapipe": True, "opencv": True}
         except ImportError:
             details["runtime"] = {"mediapipe": False, "opencv": False}
+        if not all(details["runtime"].values()):
+            details["models_ready"] = False
+            details["generation_enabled"] = False
     elif STAGE == "audio":
         try:
             import faster_whisper  # noqa: F401
