@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "model_root": "/runpod-volume/models",
-  "minimum_free_bytes": 16106127360,
-  "reserved_free_bytes": 4294967296,
+  "minimum_free_bytes": 38654705664,
+  "reserved_free_bytes": 8589934592,
   "artifacts": [
     {
       "id": "ltxv-2b-0.9.6-distilled",
