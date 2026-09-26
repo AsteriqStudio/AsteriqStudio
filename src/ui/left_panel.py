@@ -63,12 +63,12 @@ class LeftPanel(QWidget):
         self.style = QComboBox()
 
         self.style.addItems([
-            "Photorealistic",
-            "Cinematic",
-            "Anime",
-            "Fantasy",
-            "Cyberpunk",
-            "Documentary"
+            "Bold graphic 2D",
+            "Anime illustration",
+            "Stylized 3D",
+            "Painterly animation",
+            "Cinematic animation",
+            "Photorealistic (explicit opt-in)"
         ])
 
         layout.addWidget(self.style)

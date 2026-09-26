@@ -4,6 +4,12 @@
   "deployment_policy": "Run Blender, voice, transcription, translation and assembly as stage jobs on Serverless workers sharing the Asteriq network volume; do not use Pods.",
   "purpose": "Versioned, fail-closed source-video to animated-film production contract",
   "source_video_policy": "Every visible source performer requires a manual binding to one saved, versioned character and voice profile before a GPU job can start.",
+  "visual_style_policy": {
+    "default": "bold_graphic_2d",
+    "allowed_defaults": ["bold_graphic_2d", "anime_illustration", "stylized_3d", "painterly_animation"],
+    "photorealism": "blocked unless the project owner explicitly selects photorealistic output for this render",
+    "negative_terms": ["photorealistic", "real skin", "live action", "uncanny realism"]
+  },
   "timeline": {"final_durations_seconds": [60, 300, 600], "internal_checkpoint_seconds": 10, "fps": 24, "constant_frame_rate": true},
   "core_comfy_requirements": {
     "executables": ["ffmpeg"],

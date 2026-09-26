@@ -4,6 +4,11 @@
   "deployment_mode": "runpod_serverless_only",
   "deployment_policy": "No Pods, paid model APIs, or permanently running workers. Every stage scales to zero after its Serverless job completes.",
   "execution_guard": "operator_start_required",
+  "visual_style_policy": {
+    "default": "bold_graphic_2d",
+    "photorealism_requires_explicit_opt_in": true,
+    "presets": ["bold_graphic_2d", "anime_illustration", "stylized_3d", "painterly_animation", "photorealistic"]
+  },
   "final_durations_seconds": [60, 300, 600],
   "internal_checkpoint_seconds": 10,
   "model_cache_root": "/runpod-volume/models",

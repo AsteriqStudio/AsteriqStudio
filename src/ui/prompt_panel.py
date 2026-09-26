@@ -37,12 +37,12 @@ class PromptPanel(QWidget):
         self.style = QComboBox()
 
         self.style.addItems([
-            "Cinematic",
-            "Photorealistic",
-            "Fantasy",
-            "Anime",
-            "Cyberpunk",
-            "Documentary"
+            "Bold graphic 2D",
+            "Anime illustration",
+            "Stylized 3D",
+            "Painterly animation",
+            "Cinematic animation",
+            "Photorealistic (explicit opt-in)"
         ])
 
         layout.addWidget(self.style)
@@ -100,6 +100,7 @@ class PromptPanel(QWidget):
         request.image_negative_prompt = (
             self.negative.toPlainText()
         )
+        request.style = self.style.currentText()
 
         request.model = self.model.currentText()
 
