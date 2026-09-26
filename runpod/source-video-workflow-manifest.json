@@ -3,6 +3,7 @@
   "deployment_mode": "runpod_serverless_only",
   "deployment_policy": "Run Blender, voice, transcription, translation and assembly as stage jobs on Serverless workers sharing the Asteriq network volume; do not use Pods.",
   "purpose": "Versioned, fail-closed source-video to animated-film production contract",
+  "production_routes": ["source_video_to_animation", "direct_3d_film"],
   "source_video_policy": "Every visible source performer requires a manual binding to one saved, versioned character and voice profile before a GPU job can start.",
   "visual_style_policy": {
     "default": "bold_graphic_2d",
@@ -29,6 +30,14 @@
     "voice_conversion": {"requires": ["OpenVoice V2 model and runtime"], "worker": "serverless-audio-stage"},
     "local_subtitles": {"requires": ["local ASR", "local English/German translation runtime"], "worker": "serverless-audio-stage"},
     "frame_assembly": {"requires": ["ffmpeg"]}
+  },
+  "direct_3d_film": {
+    "purpose": "Create and render a 3D animated film without generating a 2D video as the source animation.",
+    "character_inputs": ["character brief", "optional reference images", "height and body proportions", "wardrobe brief"],
+    "scene_inputs": ["script and shot list", "virtual-set brief", "prop list", "camera plan", "lighting plan"],
+    "stages": ["image or text to reusable 3D character asset", "topology and rig repair", "Blender blocking and animation", "Blender virtual-set render", "voice, subtitle and MP4 assembly"],
+    "asset_policy": "Save each approved character and virtual set as a versioned reusable asset. Reference images guide design only; they never become a 2D animated-video intermediary.",
+    "quality_gate": "Do not submit a direct 3D render until the character rig, clothing constraints, camera plan and virtual set pass review."
   },
   "output": {"subtitle_formats": ["WebVTT", "ASS"], "subtitle_style": "yellow or black outline, no box", "quality_gates": ["cast identity", "timeline continuity", "frame cadence", "voice and lip sync", "subtitle legibility", "human review"]}
 }
