@@ -1,0 +1,7 @@
+# The Serverless worker only needs its build files.  Keeping the context this
+# small avoids uploading UI prototypes, generated media and repository history
+# to RunPod's Git builder.
+*
+!runpod/
+!runpod/**
+!.dockerignore
