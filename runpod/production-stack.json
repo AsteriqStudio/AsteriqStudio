@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "purpose": "Asteriq long-form, open-source animation production worker",
+  "execution_guard": "operator_start_required",
+  "final_durations_seconds": [60, 300, 600],
+  "internal_checkpoint_seconds": 10,
+  "model_cache_root": "/runpod-volume/models",
+  "cost_profiles": {
+    "economy": {
+      "target_eur_per_output_minute": 1,
+      "maximum_gpu_seconds_per_output_minute": 3600,
+      "strategy": "track once, retarget reusable rig, render reusable set, apply generative look only to approved shots",
+      "cache": ["character version", "virtual set", "camera and lighting", "performer tracks", "voice profile", "unchanged shots"],
+      "4k": "requires a separately approved finishing budget"
+    },
+    "generative": {
+      "strategy": "use continuity-conditioned generative animation windows",
+      "cache": ["character version", "virtual set", "performer tracks", "unchanged shots"]
+    }
+  },
+  "stages": [
+    {"id": "concept_design", "component": "Segmind SSD-1B", "purpose": "open-source concept frames and character/set design sheets"},
+    {"id": "track", "component": "SAM 2", "purpose": "per-person masks and tracking"},
+    {"id": "performance", "component": "DWPose / ControlNet", "purpose": "body and gesture guidance"},
+    {"id": "character", "component": "TRELLIS.2 + rig repair", "purpose": "reference-to-3D character assets"},
+    {"id": "animate", "component": "LTX-Video", "purpose": "style-conditioned animation windows"},
+    {"id": "voice", "component": "OpenVoice V2", "purpose": "stable, per-character voice transformation"},
+    {"id": "upscale", "component": "Real-ESRGAN", "purpose": "approved 4K finishing"},
+    {"id": "assemble", "component": "FFmpeg", "purpose": "one synchronized minute-length MP4"}
+  ],
+  "safety": {
+    "model_training": false,
+    "paid_model_apis": false,
+    "runpod_submission": false,
+    "requires_explicit_operator_start": true
+  }
+}
