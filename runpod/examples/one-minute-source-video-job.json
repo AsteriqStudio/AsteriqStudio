@@ -1,0 +1,35 @@
+{
+  "duration_seconds": 60,
+  "source": {
+    "video_uri": "s3://asteriq-inputs/demo/scene-001.mp4",
+    "content_hash": "sha256:replace-with-upload-hash",
+    "fps": 24,
+    "constant_frame_rate": true,
+    "performers": [
+      {
+        "id": "performer-1",
+        "character_version_id": "character-ian-v1",
+        "voice_profile_id": "voice-ian-cinematic-v1",
+        "voice_consent": true,
+        "track_seed": 12001
+      }
+    ]
+  },
+  "continuity": {
+    "cast_snapshot_id": "cast-v1",
+    "wardrobe_snapshot_id": "wardrobe-v1",
+    "virtual_set_version_id": "kitchen-v2",
+    "camera_plan_id": "kitchen-conversation-v1",
+    "lighting_plan_id": "warm-evening-v1",
+    "style_seed_map_id": "anime-illustration-v3"
+  },
+  "output": {
+    "container": "mp4",
+    "resolution": "hd",
+    "subtitle_languages": ["en", "de"]
+  },
+  "gpu_quote": {"usd_per_hour": 0.69, "estimated_gpu_seconds": 1200},
+  "budget": {"max_usd": 0.5},
+  "cache_readiness": "ready",
+  "operator_render_approval": "not-approved"
+}

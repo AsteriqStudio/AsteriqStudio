@@ -32,9 +32,10 @@ COPY runpod/validate-source-video-workflow.py /opt/asteriq/validate-source-video
 COPY runpod/preflight-source-video.py /opt/asteriq/preflight-source-video.py
 COPY runpod/validate-wan-source-workflow.py /opt/asteriq/validate-wan-source-workflow.py
 COPY runpod/plan-longform-timeline.py /opt/asteriq/plan-longform-timeline.py
+COPY runpod/production-controller.py /opt/asteriq/production-controller.py
 COPY workflows/video/wan_vace_source_video_api.json /opt/asteriq/workflows/wan_vace_source_video_api.json
 COPY runpod/production-start.sh /opt/asteriq/production-start.sh
-RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/audit-network-volume.py /opt/asteriq/bootstrap-model-cache.py /opt/asteriq/validate-source-video-workflow.py /opt/asteriq/preflight-source-video.py /opt/asteriq/validate-wan-source-workflow.py /opt/asteriq/plan-longform-timeline.py
+RUN chmod +x /opt/asteriq/production-start.sh /opt/asteriq/audit-network-volume.py /opt/asteriq/bootstrap-model-cache.py /opt/asteriq/validate-source-video-workflow.py /opt/asteriq/preflight-source-video.py /opt/asteriq/validate-wan-source-workflow.py /opt/asteriq/plan-longform-timeline.py /opt/asteriq/production-controller.py
 
 # The first release after this change warms the shared RunPod network volume.
 # The bootstrap uses a cross-worker lock and is idempotent, so later worker
