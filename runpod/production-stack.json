@@ -43,7 +43,7 @@
   "stages": [
     {"id": "concept_design", "component": "Segmind SSD-1B", "purpose": "open-source concept frames and character/set design sheets"},
     {"id": "track", "component": "SAM 2.1 Hiera Tiny", "purpose": "per-person masks and tracking"},
-    {"id": "performance", "component": "DWPose / ControlNet Aux", "purpose": "body and gesture guidance"},
+    {"id": "performance", "component": "MediaPipe Pose", "purpose": "body and gesture guidance without replacing the ComfyUI CUDA runtime"},
     {"id": "character", "component": "Microsoft TRELLIS + rig repair", "purpose": "reference or brief-to-3D character assets for the direct 3D route"},
     {"id": "direct_3d", "component": "Blender", "purpose": "rigged-character animation, virtual sets, camera, lighting, wardrobe and prop rendering without a 2D video intermediary"},
     {"id": "animate", "component": "LTX-Video 2B 0.9.6 distilled", "purpose": "style-conditioned image/video animation windows on 24 GB workers"},

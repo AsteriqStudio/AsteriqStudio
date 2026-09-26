@@ -14,7 +14,7 @@
   "timeline": {"final_durations_seconds": [60, 300, 600], "internal_checkpoint_seconds": 10, "fps": 24, "constant_frame_rate": true},
   "core_comfy_requirements": {
     "executables": ["ffmpeg"],
-    "nodes": ["ComfyUI-VideoHelperSuite", "ComfyUI-segment-anything-2", "comfyui_controlnet_aux", "ComfyUI-LTXVideo"],
+    "nodes": ["ComfyUI-VideoHelperSuite", "ComfyUI-segment-anything-2", "ComfyUI-LTXVideo"],
     "models": [
       "checkpoints/ltxv-2b-0.9.6-distilled-04-25.safetensors",
       "text_encoders/t5xxl_fp8_e4m3fn.safetensors",

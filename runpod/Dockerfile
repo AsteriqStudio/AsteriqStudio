@@ -16,14 +16,13 @@ RUN pip install -r /comfyui/custom_nodes/ComfyUI-LTXVideo/requirements.txt
 # used by the Asteriq production plan. Model weights stay on the network volume
 # and are not downloaded during image build.
 RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git /comfyui/custom_nodes/ComfyUI-VideoHelperSuite \
- && git clone --depth 1 https://github.com/kijai/ComfyUI-segment-anything-2.git /comfyui/custom_nodes/ComfyUI-segment-anything-2 \
- && git clone --depth 1 https://github.com/Fannovel16/comfyui_controlnet_aux.git /comfyui/custom_nodes/comfyui_controlnet_aux
+ && git clone --depth 1 https://github.com/kijai/ComfyUI-segment-anything-2.git /comfyui/custom_nodes/ComfyUI-segment-anything-2
 
-# VideoHelperSuite and controlnet_aux publish dependency files. The SAM2 node
-# uses the base ComfyUI environment and does not include one, so installing a
-# hard-coded missing path makes the whole Serverless image fail to build.
-RUN pip install -r /comfyui/custom_nodes/ComfyUI-VideoHelperSuite/requirements.txt \
- && pip install -r /comfyui/custom_nodes/comfyui_controlnet_aux/requirements.txt
+# Do not install the complete ControlNet Auxiliary preprocessor bundle: it
+# attempts to replace ComfyUI's CUDA torch stack and makes reproducible image
+# builds fail.  Asteriq uses the separate, pinned MediaPipe runtime for pose
+# capture and needs only video I/O here.
+RUN pip install --no-cache-dir opencv-python-headless imageio-ffmpeg
 
 # Keep voice/transcription packages separate from the ComfyUI interpreter.
 # No model API SDK is installed; all weights are cached from public repos on
