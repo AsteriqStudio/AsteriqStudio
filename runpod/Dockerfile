@@ -3,7 +3,7 @@ FROM runpod/worker-comfyui:5.8.6-base
 USER root
 
 RUN apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git curl \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git curl blender espeak-ng libsndfile1 libgl1 python3-venv \
  && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/Lightricks/ComfyUI-LTXVideo.git /comfyui/custom_nodes/ComfyUI-LTXVideo
@@ -25,8 +25,19 @@ RUN git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.
 RUN pip install -r /comfyui/custom_nodes/ComfyUI-VideoHelperSuite/requirements.txt \
  && pip install -r /comfyui/custom_nodes/comfyui_controlnet_aux/requirements.txt
 
+# Keep voice/transcription packages separate from the ComfyUI interpreter.
+# No model API SDK is installed; all weights are cached from public repos on
+# the attached RunPod volume at worker boot.
+RUN git clone https://github.com/myshell-ai/OpenVoice.git /opt/asteriq/openvoice \
+ && cd /opt/asteriq/openvoice && git checkout 74a1d147b17a8c3092dd5430504bd83ef6c7eb23 \
+ && python3 -m venv --system-site-packages /opt/asteriq/audio-venv
+COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
+RUN /opt/asteriq/audio-venv/bin/pip install --no-cache-dir -r /opt/asteriq/audio-requirements.txt \
+ && pip install --no-cache-dir 'huggingface_hub>=0.24'
+
 COPY runpod/extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY runpod/production-stack.json /opt/asteriq/production-stack.json
+COPY runpod/audio-requirements.txt /opt/asteriq/audio-requirements.txt
 COPY runpod/model-cache-manifest.json /opt/asteriq/model-cache-manifest.json
 COPY runpod/source-video-workflow-manifest.json /opt/asteriq/source-video-workflow-manifest.json
 COPY runpod/bootstrap-model-cache.py /opt/asteriq/bootstrap-model-cache.py

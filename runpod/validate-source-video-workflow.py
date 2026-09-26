@@ -32,15 +32,23 @@ def main() -> int:
         for model in requirements["models"]
     }
     available_executables = {command: shutil.which(command) is not None for command in requirements["executables"]}
+    blender_ready = shutil.which("blender") is not None
+    audio_runtime_ready = Path("/opt/asteriq/audio-venv/bin/python").is_file() and Path("/opt/asteriq/openvoice").is_dir()
+    audio_models = {
+        "openvoice": (MODEL_ROOT / "audio/openvoice-v2").is_dir(),
+        "asr": (MODEL_ROOT / "audio/faster-whisper-small").is_dir(),
+        "en_de": (MODEL_ROOT / "audio/marian-en-de").is_dir(),
+        "de_en": (MODEL_ROOT / "audio/marian-de-en").is_dir(),
+    }
     base_ready = all(available_nodes.values()) and all(available_models.values()) and all(available_executables.values())
     capabilities = {
         "source_ingest": available_executables.get("ffmpeg", False) and available_nodes.get("ComfyUI-VideoHelperSuite", False),
         "performer_tracking": available_nodes.get("ComfyUI-segment-anything-2", False) and available_models.get("sam2/sam2.1_hiera_tiny-fp16.safetensors", False),
-        "motion_capture": False,
-        "rig_retarget": False,
-        "virtual_set_render": False,
-        "voice_conversion": False,
-        "local_subtitles": False,
+        "motion_capture": available_nodes.get("ComfyUI-segment-anything-2", False) and audio_runtime_ready,
+        "rig_retarget": blender_ready,
+        "virtual_set_render": blender_ready,
+        "voice_conversion": audio_runtime_ready and audio_models["openvoice"],
+        "local_subtitles": audio_runtime_ready and all(audio_models[key] for key in ("asr", "en_de", "de_en")),
         "frame_assembly": available_executables.get("ffmpeg", False),
     }
     blockers = [name for name, ready in capabilities.items() if not ready]
@@ -50,6 +58,9 @@ def main() -> int:
         "node_checks": available_nodes,
         "model_checks": available_models,
         "executable_checks": available_executables,
+        "blender_ready": blender_ready,
+        "audio_runtime_ready": audio_runtime_ready,
+        "audio_model_checks": audio_models,
         "capabilities": capabilities,
         "full_production_ready": not blockers,
         "blocking_capabilities": blockers,

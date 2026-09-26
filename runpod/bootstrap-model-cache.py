@@ -30,6 +30,25 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_path(path: Path) -> str:
+    """Hash one file or a complete snapshot directory deterministically."""
+    if path.is_file():
+        return sha256_file(path)
+    digest = hashlib.sha256()
+    for child in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        digest.update(str(child.relative_to(path)).encode("utf-8"))
+        with child.open("rb") as source:
+            for block in iter(lambda: source.read(8 * 1024 * 1024), b""):
+                digest.update(block)
+    return digest.hexdigest()
+
+
+def path_bytes(path: Path) -> int:
+    if path.is_file():
+        return path.stat().st_size
+    return sum(child.stat().st_size for child in path.rglob("*") if child.is_file())
+
+
 def download(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as temp:
@@ -43,6 +62,14 @@ def download(url: str, destination: Path) -> None:
             temp_path.replace(destination)
         finally:
             temp_path.unlink(missing_ok=True)
+
+
+def download_repository(repository: str, revision: str, destination: Path) -> None:
+    """Cache a public Hugging Face snapshot on the shared network volume."""
+    from huggingface_hub import snapshot_download
+
+    destination.mkdir(parents=True, exist_ok=True)
+    snapshot_download(repo_id=repository, revision=revision, local_dir=str(destination))
 
 
 def main() -> int:
@@ -63,22 +90,32 @@ def main() -> int:
             raise RuntimeError("RunPod network volume lacks the 30 GiB free space required for the core model cache")
         for artifact in manifest["artifacts"]:
             target = root / artifact["destination"]
-            if not target.is_file() or target.stat().st_size < 1_048_576:
+            repository = artifact.get("repository")
+            target_ready = target.is_dir() and path_bytes(target) >= 1_048_576 if repository else target.is_file() and target.stat().st_size >= 1_048_576
+            if not target_ready:
                 if not bootstrap:
                     statuses.append({"id": artifact["id"], "status": "missing"})
                     continue
                 print(f"Asteriq cache: downloading {artifact['id']}", flush=True)
-                download(artifact["source"], target)
-            digest = sha256_file(target)
+                if repository:
+                    download_repository(repository, artifact.get("revision", "main"), target)
+                else:
+                    download(artifact["source"], target)
+            size = path_bytes(target)
+            if size < 1_048_576:
+                raise RuntimeError(f"cache artifact was unexpectedly small: {artifact['id']}")
+            if shutil.disk_usage(root).free < int(manifest.get("reserved_free_bytes", 0)):
+                raise RuntimeError("RunPod network volume has reached its reserved free-space floor")
+            digest = sha256_path(target)
             expected_digest = artifact.get("sha256") or locked_artifacts.get(artifact["id"], {}).get("sha256")
             if expected_digest and digest.lower() != str(expected_digest).lower():
                 raise RuntimeError(f"cache integrity check failed for {artifact['id']}")
             # The first cache warm records a content-addressed lock under the
             # shared-volume lock. Later workers must match it exactly; this
             # catches partial writes and later volume corruption.
-            locked_artifacts[artifact["id"]] = {"sha256": digest, "bytes": target.stat().st_size}
+            locked_artifacts[artifact["id"]] = {"sha256": digest, "bytes": size}
             statuses.append({
-                "id": artifact["id"], "status": "ready", "bytes": target.stat().st_size,
+                "id": artifact["id"], "status": "ready", "bytes": size,
                 "sha256": digest, "integrity": "manifest" if artifact.get("sha256") else "shared_cache_lock",
             })
         lock_path.write_text(json.dumps(integrity_lock, indent=2), encoding="utf-8")

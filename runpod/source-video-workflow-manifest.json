@@ -1,5 +1,7 @@
 {
   "workflow_version": "source-video-cast-v1",
+  "deployment_mode": "runpod_serverless_only",
+  "deployment_policy": "Run Blender, voice, transcription, translation and assembly as stage jobs on Serverless workers sharing the Asteriq network volume; do not use Pods.",
   "purpose": "Versioned, fail-closed source-video to animated-film production contract",
   "source_video_policy": "Every visible source performer requires a manual binding to one saved, versioned character and voice profile before a GPU job can start.",
   "timeline": {"final_durations_seconds": [60, 300, 600], "internal_checkpoint_seconds": 10, "fps": 24, "constant_frame_rate": true},
@@ -15,11 +17,11 @@
   "capabilities": {
     "source_ingest": {"requires": ["ffmpeg", "ComfyUI-VideoHelperSuite"]},
     "performer_tracking": {"requires": ["ComfyUI-segment-anything-2", "sam2/sam2.1_hiera_tiny-fp16.safetensors"]},
-    "motion_capture": {"requires": ["comfyui_controlnet_aux", "DWPose weight"], "worker": "capture"},
-    "rig_retarget": {"requires": ["Blender", "approved rigged character package"], "worker": "blender"},
-    "virtual_set_render": {"requires": ["Blender", "approved virtual set package"], "worker": "blender"},
-    "voice_conversion": {"requires": ["OpenVoice V2 model and runtime"], "worker": "audio"},
-    "local_subtitles": {"requires": ["local ASR", "local English/German translation runtime"], "worker": "audio"},
+    "motion_capture": {"requires": ["SAM 2 masks", "MediaPipe Pose runtime"], "worker": "serverless-capture-stage"},
+    "rig_retarget": {"requires": ["Blender", "approved rigged character package"], "worker": "serverless-blender-stage"},
+    "virtual_set_render": {"requires": ["Blender", "approved virtual set package"], "worker": "serverless-blender-stage"},
+    "voice_conversion": {"requires": ["OpenVoice V2 model and runtime"], "worker": "serverless-audio-stage"},
+    "local_subtitles": {"requires": ["local ASR", "local English/German translation runtime"], "worker": "serverless-audio-stage"},
     "frame_assembly": {"requires": ["ffmpeg"]}
   },
   "output": {"subtitle_formats": ["WebVTT", "ASS"], "subtitle_style": "yellow or black outline, no box", "quality_gates": ["cast identity", "timeline continuity", "frame cadence", "voice and lip sync", "subtitle legibility", "human review"]}

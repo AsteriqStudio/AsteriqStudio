@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "model_root": "/runpod-volume/models",
-  "minimum_free_bytes": 32212254720,
+  "minimum_free_bytes": 16106127360,
+  "reserved_free_bytes": 4294967296,
   "artifacts": [
     {
       "id": "ltxv-2b-0.9.6-distilled",
@@ -30,6 +31,34 @@
       "source": "https://huggingface.co/Kijai/sam2-safetensors/resolve/main/sam2.1_hiera_tiny-fp16.safetensors",
       "destination": "sam2/sam2.1_hiera_tiny-fp16.safetensors",
       "license_note": "Apache-2.0 node integration; use the upstream SAM2 checkpoint terms."
+    },
+    {
+      "id": "openvoice-v2",
+      "repository": "myshell-ai/OpenVoiceV2",
+      "revision": "main",
+      "destination": "audio/openvoice-v2",
+      "license_note": "MIT. A saved, user-approved character voice reference is required for conversion."
+    },
+    {
+      "id": "faster-whisper-small",
+      "repository": "Systran/faster-whisper-small",
+      "revision": "main",
+      "destination": "audio/faster-whisper-small",
+      "license_note": "MIT; local multilingual transcription, including German."
+    },
+    {
+      "id": "marian-en-de",
+      "repository": "Helsinki-NLP/opus-mt-en-de",
+      "revision": "main",
+      "destination": "audio/marian-en-de",
+      "license_note": "CC-BY-4.0; retain required attribution in the project license record."
+    },
+    {
+      "id": "marian-de-en",
+      "repository": "Helsinki-NLP/opus-mt-de-en",
+      "revision": "main",
+      "destination": "audio/marian-de-en",
+      "license_note": "Apache-2.0."
     }
   ]
 }

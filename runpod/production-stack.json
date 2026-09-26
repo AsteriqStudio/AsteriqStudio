@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "purpose": "Asteriq long-form, open-source animation production worker",
+  "deployment_mode": "runpod_serverless_only",
+  "deployment_policy": "No Pods, paid model APIs, or permanently running workers. Every stage scales to zero after its Serverless job completes.",
   "execution_guard": "operator_start_required",
   "final_durations_seconds": [60, 300, 600],
   "internal_checkpoint_seconds": 10,
