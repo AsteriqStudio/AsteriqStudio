@@ -1,0 +1,39 @@
+name: Build Asteriq stage workers
+
+on:
+  push:
+    branches: [development]
+    paths:
+      - 'runpod/stages/**'
+      - '.github/workflows/stage-workers.yml'
+      - '.dockerignore'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        stage: [capture, audio, direct-3d]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: runpod/stages/${{ matrix.stage }}.Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/asteriqstudio/asteriqstudio-${{ matrix.stage }}:development
+            ghcr.io/asteriqstudio/asteriqstudio-${{ matrix.stage }}:${{ github.sha }}
