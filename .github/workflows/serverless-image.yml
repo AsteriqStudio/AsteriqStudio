@@ -41,6 +41,8 @@ jobs:
           file: runpod/Dockerfile
           platforms: linux/amd64
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ env.IMAGE_NAME }}:development
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
