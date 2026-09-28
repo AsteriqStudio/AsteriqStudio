@@ -17,7 +17,7 @@ def main() -> int:
     args = parser.parse_args()
     workflow = json.loads(args.workflow.read_text(encoding="utf-8"))
     nodes = {node_id: node["class_type"] for node_id, node in workflow.items()}
-    needed = {"UNETLoader", "CLIPLoader", "VAELoader", "LoadVideo", "LoadImage", "GetVideoComponents", "WanVaceToVideo", "KSampler", "CreateVideo", "SaveVideo"}
+    needed = {"UNETLoader", "CLIPLoader", "VAELoader", "LoadVideo", "LoadImage", "GetVideoComponents", "WanVaceToVideo", "LoraLoader", "KSampler", "TrimVideoLatent", "CreateVideo", "SaveVideo"}
     errors = []
     missing = sorted(needed - set(nodes.values()))
     if missing:
@@ -27,11 +27,17 @@ def main() -> int:
         errors.append("LTX reference found in Wan-only source-video workflow")
     if "wan2.1_vace_1.3b_fp16.safetensors" not in serialized:
         errors.append("expected Wan VACE 1.3B model is not selected")
+    if "wan21_causvid_bidirect2_t2v_1_3b_lora_rank32.safetensors" not in serialized:
+        errors.append("the required 1.3B CausVid LoRA is missing from the four-step workflow")
     if "umt5_xxl_fp8_e4m3fn_scaled.safetensors" not in serialized or "wan_2.1_vae.safetensors" not in serialized:
         errors.append("Wan text encoder or VAE is not selected")
     sampler = workflow.get("12", {}).get("inputs", {})
     if sampler.get("steps") != 4 or sampler.get("control_after_generate") != "fixed":
         errors.append("checkpoint sampler is not deterministic economy configuration")
+    if sampler.get("model") != ["11", 0] or workflow.get("11", {}).get("inputs", {}).get("model") != ["16", 0]:
+        errors.append("four-step sampler must use the CausVid-adapted model")
+    if workflow.get("13", {}).get("inputs", {}).get("samples") != ["17", 0] or workflow.get("17", {}).get("inputs", {}).get("trim_amount") != ["10", 3]:
+        errors.append("reference-image latent must be trimmed before VAE decode")
     vace = workflow.get("10", {}).get("inputs", {})
     if vace.get("length") != 264:
         errors.append("checkpoint must contain 264 frames: 240 output frames plus a 24-frame temporal handoff at 24 fps")

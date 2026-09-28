@@ -12,6 +12,13 @@
       "license_note": "Wan 2.1 model weights are Apache-2.0. No paid model API is used."
     },
     {
+      "id": "wan2.1-causvid-1.3b-lora",
+      "purpose": "Required four-step acceleration adapter for the Wan VACE 1.3B proof workflow. Without this adapter, the four-step sampler produces unusable low-detail output.",
+      "source": "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan21_CausVid_bidirect2_T2V_1_3B_lora_rank32.safetensors",
+      "destination": "loras/Wan21_CausVid_bidirect2_T2V_1_3B_lora_rank32.safetensors",
+      "license_note": "Open model adapter distributed from Kijai/WanVideo_comfy; preserve the upstream license metadata in the cache audit."
+    },
+    {
       "id": "wan-umt5-xxl-fp8-text-encoder",
       "purpose": "Wan 2.1 prompt encoding selected to fit alongside the VACE 1.3B worker model.",
       "source": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
