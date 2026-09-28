@@ -1,4 +1,7 @@
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+# Transformers refuses to load PyTorch checkpoints with torch < 2.6 because
+# of CVE-2025-32434.  Keep the audio worker on a patched CUDA-compatible base
+# so the cached translation models can be loaded without weakening that guard.
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
 
 WORKDIR /opt/asteriq
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg git espeak-ng libsndfile1 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
