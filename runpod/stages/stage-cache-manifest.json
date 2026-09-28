@@ -28,6 +28,12 @@
         "revision": "main"
       },
       {
+        "id": "m2m100-418m",
+        "repository": "facebook/m2m100_418M",
+        "destination": "audio/m2m100-418m",
+        "revision": "main"
+      },
+      {
         "id": "latentsync-1.6",
         "repository": "ByteDance/LatentSync-1.6",
         "destination": "audio/latentsync-1.6",

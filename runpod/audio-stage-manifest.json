@@ -6,7 +6,8 @@
     {"id": "openvoice-v2", "repository": "myshell-ai/OpenVoiceV2", "license": "MIT", "purpose": "per-character voice transformation"},
     {"id": "faster-whisper-small", "repository": "Systran/faster-whisper-small", "license": "MIT", "purpose": "local timed transcription"},
     {"id": "opus-mt-en-de", "repository": "Helsinki-NLP/opus-mt-en-de", "license": "CC-BY-4.0", "purpose": "English to German subtitle translation with attribution record"},
-    {"id": "opus-mt-de-en", "repository": "Helsinki-NLP/opus-mt-de-en", "license": "CC-BY-4.0", "purpose": "German to English subtitle translation with attribution record"}
+    {"id": "opus-mt-de-en", "repository": "Helsinki-NLP/opus-mt-de-en", "license": "CC-BY-4.0", "purpose": "German to English subtitle translation with attribution record"},
+    {"id": "m2m100-418m", "repository": "facebook/m2m100_418M", "license": "MIT", "purpose": "source-language translation into always-available English and German subtitle tracks"}
   ],
   "voice_policy": {
     "consent_required": true,
@@ -16,6 +17,6 @@
     "treatments": ["natural", "cinematic", "warm", "bright", "deep", "animated"],
     "no_paid_apis": true
   },
-  "subtitle_policy": {"languages": ["en", "de"], "formats": ["vtt", "ass", "srt"], "style": "yellow text or black outline, no background box"},
+  "subtitle_policy": {"languages": ["source", "en", "de"], "formats": ["embedded_mov_text", "vtt", "srt"], "style": "player-selectable tracks; visible style is chosen at export"},
   "render_policy": "The audio stage accepts only an approved production-controller job and never sends media to third-party APIs."
 }
