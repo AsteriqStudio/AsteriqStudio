@@ -1,4 +1,5 @@
 {
+  "visual_style": "anime_illustration",
   "duration_seconds": 60,
   "source": {
     "video_uri": "s3://asteriq-inputs/demo/scene-001.mp4",
@@ -23,6 +24,11 @@
     "lighting_plan_id": "warm-evening-v1",
     "style_seed_map_id": "anime-illustration-v3"
   },
+  "audio": {
+    "subtitles": {"languages": ["en", "de"], "style": "yellow_no_box"},
+    "voice_policy": "alter_locked_profile",
+    "background_policy": "suppress_room_and_background_voices"
+  },
   "output": {
     "container": "mp4",
     "resolution": "hd",
@@ -30,6 +36,11 @@
   },
   "gpu_quote": {"usd_per_hour": 0.69, "estimated_gpu_seconds": 1200},
   "budget": {"max_usd": 0.5},
+  "character_anchor": {
+    "asset_id": "character-ian-v1-anime-sheet",
+    "approval": "production",
+    "origin": "approved_anime_sheet"
+  },
   "cache_readiness": "ready",
   "operator_render_approval": "not-approved"
 }

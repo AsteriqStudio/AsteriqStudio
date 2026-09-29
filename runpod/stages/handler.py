@@ -172,6 +172,10 @@ def _audio_preflight(payload: dict[str, Any]) -> dict[str, Any]:
         errors.append("English and German subtitle tracks are required")
     if subtitles.get("style") not in {"yellow_no_box", "black_outline_no_box"}:
         errors.append("subtitle style must be yellow-no-box or black-outline-no-box")
+    if payload.get("background_policy") not in {None, "suppress_room_and_background_voices"}:
+        errors.append("background and room voices must be removed from the mix")
+    if payload.get("voice_policy") not in {None, "alter_locked_profile"}:
+        errors.append("the locked character voice must be altered; the source soundtrack cannot be copied")
     dialogue = str(payload.get("dialogue") or "").strip()
     lip_sync = payload.get("lip_sync") or {}
     if dialogue:
@@ -288,26 +292,18 @@ def _audio_execute(payload: dict[str, Any]) -> dict[str, Any]:
         master = folder / "captioned-master.mp4"
         _decode_data_uri(str(payload.get("source_video") or ""), source_video)
         _decode_data_uri(str(payload.get("animated_video") or ""), animated_video)
-        _run_media(["ffmpeg", "-y", "-i", str(source_video), "-vn", "-ar", "48000", "-ac", "1", str(source_audio)])
-        duration = _duration(source_audio)
-
+        _run_media(["ffmpeg", "-y", "-i", str(source_video), "-vn", "-ar", "48000", str(source_audio)])
+        if payload.get("background_policy") not in {None, "suppress_room_and_background_voices"}:
+            raise RuntimeError("background voices must be removed; the original mix cannot be copied")
         profile = payload.get("voice_profile") or {}
-        pitch = float(profile.get("pitch_shift") or 1.18)
-        if pitch < 0.8 or pitch > 1.25:
-            pitch = 1.18
-        tempo = 1.0 / pitch
-        voice_filter = (
-            f"highpass=f=85,lowpass=f=10500,asetrate=48000*{pitch:.5f},aresample=48000,"
-            f"atempo={tempo:.5f},acompressor=threshold=-18dB:ratio=2.5:attack=15:release=180,"
-            f"loudnorm=I=-16:TP=-1.5:LRA=11,apad=pad_dur={duration:.3f},atrim=0:{duration:.3f}"
-        )
-        _run_media(["ffmpeg", "-y", "-i", str(source_audio), "-af", voice_filter, "-ar", "48000", "-ac", "1", str(altered_audio)])
-        altered_duration = _duration(altered_audio)
-        timing_drift_ms = abs(duration - altered_duration) * 1000
-        if timing_drift_ms > 80:
-            raise RuntimeError(f"altered voice failed the lip-sync duration gate ({timing_drift_ms:.1f} ms drift)")
+        if not profile and payload.get("profiles"):
+            profile = payload["profiles"][0]
+        from audio_treatment import render_voice
+        voice_report = render_voice(source_audio, altered_audio, profile, work=folder)
+        duration = _duration(source_audio)
+        timing_drift_ms = float(voice_report["timing_drift_ms"])
 
-        source_language, segments = _transcribe(source_audio)
+        source_language, segments = _transcribe(altered_audio)
         if not segments:
             end = max(0.5, min(duration, 2.0))
             segments = [{"start": 0.0, "end": end, "source": "[No speech detected]"}]
@@ -351,8 +347,11 @@ def _audio_execute(payload: dict[str, Any]) -> dict[str, Any]:
             "source_language": source_language,
             "subtitle_tracks": ["source", "en", "de"],
             "embedded_subtitles": True,
-            "voice_treatment": "timing_locked_privacy_timbre_shift",
-            "pitch_factor": pitch,
+            "voice_treatment": voice_report["treatment"],
+            "pitch_semitones": voice_report["semitones"],
+            "voice_altered": voice_report["voice_altered"],
+            "background_voice_suppressed": voice_report["background_voice_suppressed"],
+            "source_correlation": voice_report["source_correlation"],
             "lip_sync_method": "source_performance_motion_with_duration_locked_final_waveform",
             "timing_drift_ms": round(timing_drift_ms, 2),
             "source_duration_seconds": round(duration, 3),
@@ -365,6 +364,10 @@ def _direct_3d_preflight(payload: dict[str, Any]) -> dict[str, Any]:
     scene = payload.get("scene") or {}
     errors = [f"character.{key} is required" for key in ("id", "asset_version_id", "height_cm", "design_brief") if not character.get(key)]
     errors += [f"character.{key} must be approved" for key in ("turntable_approved", "rig_approved", "clothing_approved") if character.get(key) is not True]
+    if character.get("anchor_approved") is not True or character.get("orientation") != "upright":
+        errors.append("3D must be built from an approved upright style sheet")
+    if character.get("source_style") not in {"anime_illustration", "bold_graphic_2d", "stylized_3d", "painterly_animation", "photorealistic"}:
+        errors.append("character.source_style must be a known Asteriq style")
     errors += [f"scene.{key} is required" for key in ("virtual_set_version_id", "camera_plan_id", "lighting_plan_id", "shot_list_id") if not scene.get(key)]
     output = payload.get("output") or {}
     if output.get("resolution") == "4k" and not output.get("approved_hd_edit_id"):

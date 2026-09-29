@@ -8,6 +8,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 RUN git clone --depth 1 https://github.com/myshell-ai/OpenVoice.git /opt/openvoice \
  && pip install --no-cache-dir "runpod>=1.7,<2" "faster-whisper>=1.1,<2" "librosa>=0.10,<0.11" "pydub>=0.25,<1" "eng_to_ipa==0.0.2" "inflect>=7,<8" "Unidecode>=1.3,<2" "pypinyin>=0.50,<1" "cn2an>=0.5,<1" "jieba>=0.42,<1" "langid>=1.1,<2" "transformers>=4.46,<5" "sentencepiece>=0.2,<1"
 COPY runpod/stages/handler.py /opt/asteriq/handler.py
+COPY runpod/stages/audio_treatment.py /opt/asteriq/audio_treatment.py
 COPY runpod/stages/stage-cache-manifest.json /opt/asteriq/stage-cache-manifest.json
 COPY runpod/stages/bootstrap-stage-cache.py /opt/asteriq/bootstrap-stage-cache.py
 ENV ASTERIQ_STAGE=audio ASTERIQ_VOLUME_ROOT=/runpod-volume PYTHONUNBUFFERED=1

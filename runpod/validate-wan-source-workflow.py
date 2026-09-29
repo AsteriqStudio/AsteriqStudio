@@ -39,6 +39,16 @@ def main() -> int:
     if workflow.get("13", {}).get("inputs", {}).get("samples") != ["17", 0] or workflow.get("17", {}).get("inputs", {}).get("trim_amount") != ["10", 3]:
         errors.append("reference-image latent must be trimmed before VAE decode")
     vace = workflow.get("10", {}).get("inputs", {})
+    positive = str(workflow.get("8", {}).get("inputs", {}).get("text") or "").lower()
+    negative = str(workflow.get("9", {}).get("inputs", {}).get("text") or "").lower()
+    if "upright" not in positive or "anime" not in positive:
+        errors.append("the default prompt must ask for an upright anime illustration")
+    if "sideways" not in negative or "ghosting" not in negative:
+        errors.append("the negative prompt must reject sideways and ghosted frames")
+    if any(node.get("class_type") == "Canny" for node in workflow.values()):
+        errors.append("control video must be the prepared source frames; an active Canny edge stream is not the official VACE path")
+    if vace.get("control_video") != ["6", 0] or workflow.get("6", {}).get("class_type") != "GetVideoComponents":
+        errors.append("WanVaceToVideo control_video must come from the prepared source frames")
     if vace.get("length") != 264:
         errors.append("checkpoint must contain 264 frames: 240 output frames plus a 24-frame temporal handoff at 24 fps")
     report = {"ready": not errors, "errors": errors, "node_types": sorted(set(nodes.values())), "policy": "static validation only; no inference performed"}

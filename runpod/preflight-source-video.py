@@ -107,6 +107,15 @@ def main() -> int:
         errors.append("estimated_gpu_seconds is required")
 
     report_path = args.cache_report or Path(os.environ.get("ASTERIQ_MODEL_ROOT", "/runpod-volume/models")) / "asteriq" / "model-cache-readiness.json"
+    anchor = plan.get("character_anchor") or {}
+    fail(errors, anchor.get("approval") == "production", "paid animation requires a production character anchor")
+    origin = anchor.get("origin")
+    rejected_origins = {"starter_glb_preview", "procedural_placeholder", "glb_viewport", "blocky_starter"}
+    if origin in rejected_origins:
+        errors.append("starter GLB preview cannot be used as a paid-animation reference")
+    else:
+        fail(errors, origin in {"approved_anime_sheet", "source_frame"}, "character anchor must be an approved anime sheet or the source frame")
+
     fail(errors, report_path.is_file(), "shared model cache readiness report is missing")
     if report_path.is_file():
         cache = read_json(report_path)

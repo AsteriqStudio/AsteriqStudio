@@ -1,0 +1,17 @@
+{
+  "asset_version_id": "character-ian-v1-anime-3d",
+  "character_id": "character-ian-v1",
+  "source_style": "anime_illustration",
+  "source_anchor": "runpod/fixtures/wardrobe-source-frame.png",
+  "orientation": "upright",
+  "anchor_approved": true,
+  "reusable": true,
+  "package": {
+    "mesh": null,
+    "materials": null,
+    "textures": null,
+    "skeleton": null,
+    "blend": null
+  },
+  "status": "anchor_approved_awaiting_first_mesh"
+}
