@@ -16,6 +16,7 @@ import sys
 from typing import Any
 
 from proof_quality import APPROVED_ANCHOR_ORIGINS, REJECTED_ANCHOR_ORIGINS, evaluate_proof, inspect_anchor
+from visual_styles import style_contract
 
 
 FPS = 24
@@ -96,6 +97,10 @@ def validate(job: dict[str, Any]) -> list[str]:
     if dialogue:
         fail(errors, (audio.get("lip_sync") or {}).get("required") is True, "dialogue requires lip-sync")
         fail(errors, (audio.get("lip_sync") or {}).get("quality_gate") == "phoneme_timing_matches_final_waveform", "lip-sync must validate the final waveform")
+    if audio.get("voice_policy") != "alter_locked_profile":
+        errors.append("the locked character voice must be altered; the source soundtrack cannot be copied")
+    if audio.get("background_policy") != "suppress_room_and_background_voices":
+        errors.append("background and room voices must be removed from the mix")
     subtitles = audio.get("subtitles") or {}
     fail(errors, subtitles.get("languages") == ["en", "de"], "audio subtitles must include English and German")
     fail(errors, subtitles.get("style") in {"yellow_no_box", "black_outline_no_box"}, "subtitle style must be legible with no background box")
@@ -114,6 +119,12 @@ def validate(job: dict[str, Any]) -> list[str]:
     if isinstance(rate, (int, float)) and isinstance(estimate, int) and isinstance(budget.get("max_usd"), (int, float)):
         fail(errors, (rate * estimate / 3600) <= budget["max_usd"], "estimate exceeds the per-video cost ceiling")
     fail(errors, job.get("cache_readiness") == "ready", "shared model cache must report ready")
+    style_name = job.get("visual_style")
+    style = style_contract(str(style_name or ""))
+    if style is None:
+        errors.append("visual_style must be anime_illustration, bold_graphic_2d, stylized_3d, painterly_animation, or photorealistic")
+    elif style["requires_owner_opt_in"] and job.get("photorealism_owner_opt_in") is not True:
+        errors.append("photorealistic output requires explicit owner opt-in")
     anchor = job.get("character_anchor") or {}
     fail(errors, anchor.get("approval") == "production", "paid animation requires a production character anchor")
     origin = anchor.get("origin")
@@ -160,12 +171,13 @@ def build_plan(job: dict[str, Any]) -> dict[str, Any]:
             "policy": "a failed proof cannot authorize audio or later sections",
         }
     approval = job.get("operator_render_approval") == "approved"
+    style = style_contract(str(job.get("visual_style") or ""))
     proof_passed = proof is not None
     followups_authorized = proof_passed and approval
     stages = [
         {"id": "ingest", "kind": "ffmpeg_conform", "gpu": False},
         {"id": "track", "kind": "sam2_and_pose", "gpu": True},
-        {"id": "render", "kind": "wan_vace_source_video", "gpu": True, "sections": sections},
+        {"id": "render", "kind": "wan_vace_source_video", "gpu": True, "sections": sections, "visual_style": style},
         {
             "id": "audio",
             "kind": "openvoice_asr_translate_subtitles",
@@ -173,6 +185,8 @@ def build_plan(job: dict[str, Any]) -> dict[str, Any]:
             "dialogue": str((job.get("audio") or {}).get("dialogue") or "").strip(),
             "on_screen_text": (job.get("audio") or {}).get("on_screen_text") or "",
             "lip_sync": (job.get("audio") or {}).get("lip_sync") or {},
+            "voice_policy": "alter_locked_profile",
+            "background_policy": "suppress_room_and_background_voices",
             "requires_passed_proof": True,
             "authorized": followups_authorized,
         },

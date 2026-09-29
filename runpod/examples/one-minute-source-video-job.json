@@ -1,4 +1,5 @@
 {
+  "visual_style": "anime_illustration",
   "duration_seconds": 60,
   "source": {
     "video_uri": "s3://asteriq-inputs/demo/scene-001.mp4",
@@ -24,7 +25,9 @@
     "style_seed_map_id": "anime-illustration-v3"
   },
   "audio": {
-    "subtitles": {"languages": ["en", "de"], "style": "yellow_no_box"}
+    "subtitles": {"languages": ["en", "de"], "style": "yellow_no_box"},
+    "voice_policy": "alter_locked_profile",
+    "background_policy": "suppress_room_and_background_voices"
   },
   "output": {
     "container": "mp4",

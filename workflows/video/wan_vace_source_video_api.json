@@ -39,7 +39,7 @@
   "8": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "text": "STYLE_AND_SCENE_PROMPT; preserve approved character identity, wardrobe, virtual set, camera intent and continuous movement.",
+      "text": "clean anime illustration, crisp ink lines, flat cel shading, upright full body, portrait orientation; preserve approved character identity, wardrobe, virtual set, camera intent and continuous movement.",
       "clip": ["16", 1]
     },
     "_meta": {"title": "Asteriq: positive direction"}
@@ -47,7 +47,7 @@
   "9": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "text": "photorealistic, live action, real skin, flicker, duplicate person, changing face, changing clothing, broken anatomy, dropped frame, text watermark",
+      "text": "sideways, rotated, lying down, cropped, ghosting, blue wash, smeared, photorealistic, live action, real skin, flicker, duplicate person, changing face, changing clothing, broken anatomy, dropped frame, text watermark",
       "clip": ["16", 1]
     },
     "_meta": {"title": "Asteriq: continuity negative direction"}

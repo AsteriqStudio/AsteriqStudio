@@ -34,6 +34,10 @@ def build(job: dict) -> dict:
     if subtitles.get("languages") != ["en", "de"]: errors.append("English and German subtitles are required")
     if subtitles.get("style") not in {"yellow_no_box", "black_outline_no_box"}: errors.append("subtitle style must be legible and have no background box")
     if not job.get("series_continuity_snapshot_id"): errors.append("series continuity snapshot is required")
+    if job.get("background_policy") != "suppress_room_and_background_voices":
+        errors.append("background and room voices must be removed from the mix")
+    if job.get("voice_policy") != "alter_locked_profile":
+        errors.append("the locked character voice must be altered; the source soundtrack cannot be copied")
     dialogue = str(job.get("dialogue") or "").strip()
     lip_sync = job.get("lip_sync") or {}
     if dialogue and lip_sync.get("required") is not True: errors.append("dialogue requires lip-sync")

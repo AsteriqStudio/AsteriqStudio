@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -61,6 +62,32 @@ def _reconstruction_error(image: Image.Image, short_side: int = 48) -> float:
     return sum(ImageStat.Stat(difference).mean) / 3.0
 
 
+def _subject_axis_degrees(image: Image.Image) -> float:
+    """0 means the subject lies across the frame. 90 means upright."""
+    width = 96
+    height = max(1, round(image.height * width / image.width))
+    small = image.resize((width, height))
+    pixels = list(small.getdata())
+    corners = (pixels[0], pixels[width - 1], pixels[(height - 1) * width], pixels[-1])
+    background = tuple(sum(pixel[channel] for pixel in corners) / 4 for channel in range(3))
+    xs: list[float] = []
+    ys: list[float] = []
+    for index, pixel in enumerate(pixels):
+        distance = sum((pixel[channel] - background[channel]) ** 2 for channel in range(3)) ** 0.5
+        if distance > 28:
+            xs.append(index % width)
+            ys.append(index // width)
+    if len(xs) < 30:
+        return 90.0
+    mean_x = sum(xs) / len(xs)
+    mean_y = sum(ys) / len(ys)
+    sxx = sum((x - mean_x) ** 2 for x in xs)
+    syy = sum((y - mean_y) ** 2 for y in ys)
+    sxy = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys))
+    angle = abs(math.degrees(0.5 * math.atan2(2 * sxy, sxx - syy)))
+    return min(angle, 180 - angle)
+
+
 def inspect_frame(path: Path) -> dict:
     image = _load(path)
     red, green, blue = _channel_means(image)
@@ -71,11 +98,15 @@ def inspect_frame(path: Path) -> dict:
     short_side = min(image.size)
     detail_error = _reconstruction_error(image)
     low_detail_preview = short_side < MINIMUM_ANCHOR_SHORT_SIDE or detail_error < LOW_DETAIL_RECONSTRUCTION_ERROR
+    subject_axis = _subject_axis_degrees(image)
+    sideways_subject = subject_axis < 25
     reasons = []
     if blue_channel_collapse:
         reasons.append("blue-channel collapse")
     if severe_ghosting:
         reasons.append("severe ghosting")
+    if sideways_subject:
+        reasons.append("subject is sideways")
     return {
         "path": str(path),
         "width": image.size[0],
@@ -87,6 +118,8 @@ def inspect_frame(path: Path) -> dict:
         "blue_channel_collapse": blue_channel_collapse,
         "severe_ghosting": severe_ghosting,
         "low_detail_preview": low_detail_preview,
+        "subject_axis_degrees": round(subject_axis, 1),
+        "sideways_subject": sideways_subject,
         "passed": not reasons,
         "reasons": reasons,
     }
@@ -108,7 +141,7 @@ def inspect_anchor(path: Path | None, metadata: dict | None = None) -> dict:
         frame_report = inspect_frame(path)
         if frame_report["low_detail_preview"]:
             reasons.append("character anchor is a low-detail starter preview")
-        if frame_report["blue_channel_collapse"] or frame_report["severe_ghosting"]:
+        if frame_report["blue_channel_collapse"] or frame_report["severe_ghosting"] or frame_report["sideways_subject"]:
             reasons.append("character anchor failed the same frame-quality gate as a proof")
     return {
         "anchor_ready": not reasons,
@@ -136,6 +169,8 @@ def evaluate_proof(proof: dict) -> list[str]:
         errors.append("proof failed: blue-channel collapse")
     if report.get("severe_ghosting"):
         errors.append("proof failed: severe ghosting")
+    if report.get("sideways_subject"):
+        errors.append("proof failed: subject is sideways")
     if report.get("passed") is not True and not errors:
         errors.append("proof quality report did not pass")
     return errors

@@ -1,0 +1,27 @@
+{
+  "default": "anime_illustration",
+  "shared_negative": "sideways, rotated, lying down, cropped, ghosting, blue wash, smeared, duplicate person, extra limbs, broken anatomy, flicker, watermark",
+  "styles": {
+    "anime_illustration": {
+      "positive": "clean anime illustration, crisp ink lines, flat cel shading, upright full body, portrait orientation, same person, wardrobe and room",
+      "negative": "photorealistic, live action, real skin, 3d render, blocky preview"
+    },
+    "bold_graphic_2d": {
+      "positive": "bold graphic 2D animation frame, thick confident ink, flat color shapes, upright full body, same person, wardrobe and room",
+      "negative": "photorealistic, soft airbrush, 3d render, pencil sketch"
+    },
+    "stylized_3d": {
+      "positive": "stylized 3D character render, clean materials, readable silhouette, upright full body, turntable-ready, same person and wardrobe",
+      "negative": "photoreal skin, live action, blocky starter mesh, untextured viewport"
+    },
+    "painterly_animation": {
+      "positive": "painterly animation frame, visible brush texture, controlled edges, upright full body, same person, wardrobe and room",
+      "negative": "photorealistic, flat vector, 3d viewport, smeared paint"
+    },
+    "photorealistic": {
+      "requires_owner_opt_in": true,
+      "positive": "photorealistic live-action frame, natural skin, upright full body, same person, wardrobe and room",
+      "negative": "anime, cartoon, cel shading, illustration"
+    }
+  }
+}

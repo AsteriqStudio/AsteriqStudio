@@ -35,6 +35,8 @@ COPY runpod/validate-wan-source-workflow.py /opt/asteriq/validate-wan-source-wor
 COPY runpod/plan-longform-timeline.py /opt/asteriq/plan-longform-timeline.py
 COPY runpod/production-controller.py /opt/asteriq/production-controller.py
 COPY runpod/proof_quality.py /opt/asteriq/proof_quality.py
+COPY runpod/visual_styles.py /opt/asteriq/visual_styles.py
+COPY runpod/visual-styles.json /opt/asteriq/visual-styles.json
 COPY runpod/validate-finish-4k-workflow.py /opt/asteriq/validate-finish-4k-workflow.py
 COPY workflows/video/wan_vace_source_video_api.json /opt/asteriq/workflows/wan_vace_source_video_api.json
 COPY workflows/video/realesrgan_approved_hd_to_4k_api.json /opt/asteriq/workflows/realesrgan_approved_hd_to_4k_api.json
