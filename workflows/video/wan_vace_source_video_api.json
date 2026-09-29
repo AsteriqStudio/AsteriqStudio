@@ -34,12 +34,7 @@
   "6": {
     "class_type": "GetVideoComponents",
     "inputs": {"video": ["4", 0]},
-    "_meta": {"title": "Asteriq: source frames"}
-  },
-  "7": {
-    "class_type": "Canny",
-    "inputs": {"image": ["6", 0], "low_threshold": 0.4, "high_threshold": 0.8},
-    "_meta": {"title": "Asteriq: camera and environment structure"}
+    "_meta": {"title": "Asteriq: prepared source control frames"}
   },
   "8": {
     "class_type": "CLIPTextEncode",
@@ -63,7 +58,7 @@
       "positive": ["8", 0],
       "negative": ["9", 0],
       "vae": ["3", 0],
-      "control_video": ["7", 0],
+      "control_video": ["6", 0],
       "reference_image": ["5", 0],
       "width": 480,
       "height": 480,

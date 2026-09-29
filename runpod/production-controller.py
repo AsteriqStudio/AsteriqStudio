@@ -15,6 +15,8 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from proof_quality import APPROVED_ANCHOR_ORIGINS, REJECTED_ANCHOR_ORIGINS, evaluate_proof, inspect_anchor
+
 
 FPS = 24
 SECTION_SECONDS = 10
@@ -112,6 +114,19 @@ def validate(job: dict[str, Any]) -> list[str]:
     if isinstance(rate, (int, float)) and isinstance(estimate, int) and isinstance(budget.get("max_usd"), (int, float)):
         fail(errors, (rate * estimate / 3600) <= budget["max_usd"], "estimate exceeds the per-video cost ceiling")
     fail(errors, job.get("cache_readiness") == "ready", "shared model cache must report ready")
+    anchor = job.get("character_anchor") or {}
+    fail(errors, anchor.get("approval") == "production", "paid animation requires a production character anchor")
+    origin = anchor.get("origin")
+    if origin in REJECTED_ANCHOR_ORIGINS:
+        errors.append("starter GLB preview cannot be used as a paid-animation reference")
+    else:
+        fail(errors, origin in APPROVED_ANCHOR_ORIGINS, "character anchor must be an approved anime sheet or the source frame")
+    frame_path = anchor.get("frame_path")
+    if frame_path:
+        anchor_report = inspect_anchor(Path(frame_path), anchor)
+        for reason in anchor_report["reasons"]:
+            if reason not in errors:
+                errors.append(reason)
     return errors
 
 
@@ -132,14 +147,37 @@ def build_plan(job: dict[str, Any]) -> dict[str, Any]:
     for section in sections:
         if section["id"] in changed and section["predecessor"]:
             rerender.add(section["predecessor"])
+    proof = job.get("rendered_proof")
+    proof_errors = evaluate_proof(proof) if proof is not None else []
+    if proof_errors:
+        return {
+            "ready": False,
+            "no_render": True,
+            "render_submission_allowed": False,
+            "proof_status": "failed",
+            "errors": proof_errors,
+            "blocked_stages": ["audio", "assemble", "remaining_sections"],
+            "policy": "a failed proof cannot authorize audio or later sections",
+        }
+    approval = job.get("operator_render_approval") == "approved"
+    proof_passed = proof is not None
+    followups_authorized = proof_passed and approval
     stages = [
         {"id": "ingest", "kind": "ffmpeg_conform", "gpu": False},
         {"id": "track", "kind": "sam2_and_pose", "gpu": True},
         {"id": "render", "kind": "wan_vace_source_video", "gpu": True, "sections": sections},
-        {"id": "audio", "kind": "openvoice_asr_translate_subtitles", "gpu": True, "dialogue": str((job.get("audio") or {}).get("dialogue") or "").strip(), "on_screen_text": (job.get("audio") or {}).get("on_screen_text") or "", "lip_sync": (job.get("audio") or {}).get("lip_sync") or {}},
-        {"id": "assemble", "kind": "ffmpeg_cfr_mp4", "gpu": False},
+        {
+            "id": "audio",
+            "kind": "openvoice_asr_translate_subtitles",
+            "gpu": True,
+            "dialogue": str((job.get("audio") or {}).get("dialogue") or "").strip(),
+            "on_screen_text": (job.get("audio") or {}).get("on_screen_text") or "",
+            "lip_sync": (job.get("audio") or {}).get("lip_sync") or {},
+            "requires_passed_proof": True,
+            "authorized": followups_authorized,
+        },
+        {"id": "assemble", "kind": "ffmpeg_cfr_mp4", "gpu": False, "requires_passed_proof": True, "authorized": followups_authorized},
     ]
-    approval = job.get("operator_render_approval") == "approved"
     return {
         "ready": True,
         "no_render": not approval,
@@ -153,6 +191,7 @@ def build_plan(job: dict[str, Any]) -> dict[str, Any]:
             "policy": "one master timeline; internal windows are temporal handoffs, never independent clips",
         },
         "stages": stages,
+        "proof_status": "passed" if proof_passed else "not_submitted",
         "rerender_scope": "all_sections" if not changed else sorted(rerender),
         "cost_guard": {
             "quoted_usd_per_hour": job["gpu_quote"]["usd_per_hour"],

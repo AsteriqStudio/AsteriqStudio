@@ -17,6 +17,9 @@
     "engine": "Wan 2.1 VACE 1.3B",
     "checkpoint_frames": 264,
     "checkpoint_policy": "Render 240 unique output frames per 10-second section plus a 24-frame handoff window. The next section is conditioned by the preceding approved tail; it is never an independently generated clip.",
+    "control_video_policy": "Feed WanVaceToVideo the prepared source frames. The official VACE graph leaves Canny bypassed, so an active edge stream is not a valid control video.",
+    "proof_policy": "An MP4 file is not a completed proof. Blue-channel collapse or severe ghosting fails the section and blocks audio, assembly, and every later section.",
+    "character_anchor_policy": "Paid animation requires a production anchor from an approved anime sheet or the source frame. A blocky starter GLB preview is rejected before a GPU job is reserved.",
     "final_timeline_policy": "Deliver one continuous CFR master timeline. A 60-second film contains exactly 1,440 output frames assembled from six chronological 240-frame sections; handoff frames are used only for conditioning and boundary quality checks, never duplicated in the final edit.",
     "boundary_quality_gate": ["same cast, character-asset and wardrobe versions", "same virtual-set, camera and lighting continuity snapshot", "pose and mask continuity", "constant 24 fps cadence", "color and exposure delta within project threshold", "motion-vector discontinuity check", "rerender only the failed section or boundary"]
   },
